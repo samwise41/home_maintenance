@@ -25,14 +25,12 @@
         .top-bar { background-color: #1a252f; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .main-layout { display: flex; flex: 1; }
         
-        /* Sidebar */
         .sidebar { width: 220px; background-color: var(--sidebar-bg); padding-top: 20px; display: flex; flex-direction: column; }
         .nav-tab { background: transparent; border: none; color: #aeb6bf; padding: 15px 20px; text-align: left; font-size: 1.1em; font-weight: bold; cursor: pointer; border-left: 4px solid transparent; }
         .nav-tab:hover { color: white; background-color: #34495e; }
         .nav-tab.active { color: white; background-color: #34495e; border-left: 4px solid var(--primary-btn); }
         
         .content-area { flex: 1; padding: 20px; max-width: 900px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-        
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
@@ -63,8 +61,8 @@
         label { font-weight: bold; font-size: 0.9em; }
         input, select, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; width: 100%; box-sizing: border-box;}
         
-        /* Settings & Utilities Grid */
-        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        /* Updated Settings Grid to perfectly handle 3 cards */
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .settings-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .location-list-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; }
         
@@ -85,7 +83,6 @@
 </div>
 
 <div class="main-layout">
-    
     <aside class="sidebar">
         <button class="nav-tab active" onclick="window.switchTab('tab-dashboard', this)">Dashboard</button>
         <button class="nav-tab" onclick="window.switchTab('tab-all', this)">All Tasks</button>
@@ -131,15 +128,25 @@
                 
                 <div class="settings-card">
                     <h3 style="margin-top: 0;">Manage Locations</h3>
-                    <p style="color: var(--text-light); font-size: 0.9em;">Modify the dropdown options for your tasks.</p>
-                    
+                    <p style="color: var(--text-light); font-size: 0.9em;">Modify the location options for your tasks.</p>
                     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <input type="text" id="newLocationInput" placeholder="Add new location..." style="flex: 1;">
+                        <input type="text" id="newLocationInput" placeholder="Add location..." style="flex: 1;">
                         <button class="btn-primary btn-sm" onclick="window.addNewLocation()">Add</button>
                     </div>
-                    
                     <div id="locations-manager-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 5px;">
-                        <p style="text-align:center; color:#999;">Loading locations...</p>
+                        <p style="text-align:center; color:#999;">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <h3 style="margin-top: 0;">Manage Categories</h3>
+                    <p style="color: var(--text-light); font-size: 0.9em;">Modify the category options for your tasks.</p>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <input type="text" id="newCategoryInput" placeholder="Add category..." style="flex: 1;">
+                        <button class="btn-primary btn-sm" onclick="window.addNewCategory()">Add</button>
+                    </div>
+                    <div id="categories-manager-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 5px;">
+                        <p style="text-align:center; color:#999;">Loading...</p>
                     </div>
                 </div>
             </div>
@@ -161,14 +168,9 @@
                 </select>
             
             <label>Category:</label>
-            <select id="itemCategory">
-                <option value="HVAC">HVAC</option>
-                <option value="Plumbing">Plumbing</option>
-                <option value="Safety">Safety</option>
-                <option value="Flooring">Flooring</option>
-                <option value="Exterior">Exterior</option>
-                <option value="Appliance">Appliance</option>
-            </select>
+            <select id="itemCategory" required>
+                </select>
+            
             <label>Frequency (Months):</label>
             <input type="number" id="itemFrequency" min="1" required>
             <div id="lastCompletedContainer">
