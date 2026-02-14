@@ -5,7 +5,6 @@ function getStatus(nextDueDateStr) {
     const nextDue = new Date(nextDueDateStr);
     const diffDays = Math.ceil((nextDue - today) / (1000 * 60 * 60 * 24)); 
     
-    // Status Logic
     if (diffDays < 0) return { class: 'status-overdue', text: '🚨 Overdue' };
     if (diffDays <= 30) return { class: 'status-soon', text: '⚠️ Due Soon' };
     return { class: 'status-ok', text: '✅ OK' };
@@ -20,7 +19,6 @@ window.renderAllViews = function() {
     
     let dashboardCount = 0;
 
-    // Sort array by due date
     window.appData.items.sort((a, b) => new Date(a.next_due) - new Date(b.next_due));
 
     window.appData.items.forEach(item => {
@@ -29,7 +27,9 @@ window.renderAllViews = function() {
         const adjustedDate = new Date(dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000));
         const formattedDate = adjustedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-        // Build the HTML for a single card
+        // Fallback for null locations to prevent "null" from showing on the UI
+        const displayLocation = item.location ? item.location : "Location not specified";
+
         const cardHTML = `
             <div class="card-header">
                 <h3>${item.name}</h3>
@@ -37,7 +37,7 @@ window.renderAllViews = function() {
             </div>
             
             <div class="card-body">
-                <p>📍 ${item.location} | ⏱️ Every ${item.frequency_months} months</p>
+                <p>📍 ${displayLocation} | ⏱️ Every ${item.frequency_months} months</p>
                 <p><strong>Next Due:</strong> ${formattedDate}</p>
             </div>
             
@@ -47,13 +47,11 @@ window.renderAllViews = function() {
             </div>
         `;
 
-        // 1. Add to "All Tasks" Tab
         const cardAll = document.createElement('div');
         cardAll.className = 'item-card';
         cardAll.innerHTML = cardHTML;
         allList.appendChild(cardAll);
 
-        // 2. Add to "Dashboard" Tab ONLY if it requires action (Overdue or Due Soon)
         if (status.class === 'status-overdue' || status.class === 'status-soon') {
             const cardDash = document.createElement('div');
             cardDash.className = 'item-card';
@@ -63,7 +61,6 @@ window.renderAllViews = function() {
         }
     });
 
-    // Empty State Messages
     if (dashboardCount === 0) {
         dashList.innerHTML = `
             <div style="text-align: center; padding: 40px 20px; color: var(--text-light); background: white; border-radius: 8px;">
