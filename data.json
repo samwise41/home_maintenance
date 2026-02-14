@@ -157,6 +157,20 @@
           "notes": "Initial entry"
         }
       ]
+    },
+    {
+      "id": "item-1771053994325",
+      "name": "Clean Garage ",
+      "location": "Garage",
+      "category": "HVAC",
+      "frequency_months": 12,
+      "next_due": "2027-02-14",
+      "history": [
+        {
+          "date_completed": "2026-02-14",
+          "notes": "Initial entry"
+        }
+      ]
     }
   ]
 }
