@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "id": "furnace-filter",
+      "name": "Change Furnace Filter",
+      "location": "Basement HVAC",
+      "category": "HVAC",
+      "frequency_months": 3,
+      "next_due": "2026-01-15",
+      "history": [
+        {
+          "date_completed": "2025-10-15",
+          "notes": "Used MERV 11"
+        }
+      ]
+    },
+    {
+      "id": "smoke-detectors",
+      "name": "Check Batteries",
+      "location": "Whole House",
+      "category": "Safety",
+      "frequency_months": 6,
+      "next_due": "2026-02-28",
+      "history": []
+    },
+    {
+      "id": "carpet-basement",
+      "name": "Carpet Cleaning",
+      "location": "Basement Family Room",
+      "category": "Flooring",
+      "frequency_months": 12,
+      "next_due": "2026-08-01",
+      "history": []
+    }
+  ]
+}
+
