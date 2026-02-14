@@ -1,25 +1,19 @@
 window.appData = { items: [] };
 window.fileSha = ""; 
 
+window.appLocations = [];
+window.locationFileSha = "";
+
 // --- TAB NAVIGATION ---
 window.switchTab = function(tabId, element) {
-    // Hide all tab contents
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    // Remove active class from all sidebar buttons
     document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
-    
-    // Show selected tab content
     document.getElementById(tabId).classList.add('active');
-    // Highlight clicked button
     element.classList.add('active');
 };
 
 // --- MODAL CONTROLLERS ---
 window.closeModal = function(modalId) { document.getElementById(modalId).style.display = "none"; };
-
-window.openSettingsModal = function() {
-    document.getElementById('settingsModal').style.display = "block";
-};
 
 window.openAddModal = function() {
     document.getElementById('itemForm').reset();
@@ -27,22 +21,37 @@ window.openAddModal = function() {
     document.getElementById('modalTitle').innerText = "Add New Task";
     document.getElementById('lastCompletedContainer').style.display = "block"; 
     document.getElementById('itemLastCompleted').value = ""; 
-    document.getElementById('deleteBtn').style.display = "none"; // Hide delete button for new tasks
+    document.getElementById('deleteBtn').style.display = "none"; 
+    
+    // Refresh dropdown to normal state
+    window.populateLocationDropdown();
+    
     document.getElementById('itemModal').style.display = "block";
 };
 
 window.openEditModal = function(id) {
     const item = window.appData.items.find(i => i.id === id);
     if (!item) return;
+    
     document.getElementById('itemForm').reset();
     document.getElementById('modalTitle').innerText = "Edit Task";
     document.getElementById('itemId').value = item.id;
     document.getElementById('itemName').value = item.name;
-    document.getElementById('itemLocation').value = item.location;
     document.getElementById('itemCategory').value = item.category;
     document.getElementById('itemFrequency').value = item.frequency_months;
     document.getElementById('lastCompletedContainer').style.display = "block";
-    document.getElementById('deleteBtn').style.display = "block"; // Show delete button
+    document.getElementById('deleteBtn').style.display = "block"; 
+    
+    // Fix for the Null Bug: If the item's location isn't in our array, add it temporarily so it doesn't wipe out
+    window.populateLocationDropdown(); 
+    const locSelect = document.getElementById('itemLocation');
+    if (item.location && !window.appLocations.includes(item.location)) {
+        const opt = document.createElement('option');
+        opt.value = item.location;
+        opt.innerText = item.location + " (Legacy)";
+        locSelect.appendChild(opt);
+    }
+    locSelect.value = item.location || "";
     
     if (item.history && item.history.length > 0) {
         document.getElementById('itemLastCompleted').value = item.history[item.history.length - 1].date_completed;
@@ -57,7 +66,7 @@ window.openLogModal = function(id) {
     if (!item) return; 
     document.getElementById('logForm').reset();
     document.getElementById('logItemId').value = item.id;
-    document.getElementById('logItemName').innerText = `Task: ${item.name} (${item.location})`;
+    document.getElementById('logItemName').innerText = `Task: ${item.name} (${item.location || 'Unknown'})`;
     document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
     document.getElementById('logModal').style.display = "block";
 };
@@ -76,41 +85,93 @@ window.showStatusMsg = function(msg, color="green") {
     setTimeout(() => el.innerText = "", 3000);
 };
 
-// --- DELETE ITEM LOGIC ---
 window.deleteItem = async function() {
     const id = document.getElementById('itemId').value;
     if (!id) return;
+    if (!confirm("Are you sure you want to delete this task? This cannot be undone.")) return; 
     
-    // Safety check pop-up
-    if (!confirm("Are you sure you want to delete this task? This cannot be undone.")) {
-        return; 
-    }
-    
-    // Filter it out of the array
     window.appData.items = window.appData.items.filter(item => item.id !== id);
-    
     window.closeModal('itemModal');
     window.renderAllViews();
     await window.saveToGitHub();
 };
 
-// --- DATA FETCHING (Github + Local JSONs) ---
-async function fetchDropdowns() {
-    try {
-        const response = await fetch('./dropdowns/locations.json');
-        const locations = await response.json();
-        const selectEl = document.getElementById('itemLocation');
-        
-        locations.forEach(loc => {
-            const opt = document.createElement('option');
-            opt.value = loc;
-            opt.innerText = loc;
-            selectEl.appendChild(opt);
-        });
-    } catch (e) {
-        console.error("Could not load locations.json", e);
+// --- LOCATION UTILITIES ---
+window.populateLocationDropdown = function() {
+    const selectEl = document.getElementById('itemLocation');
+    selectEl.innerHTML = '<option value="">Select a location...</option>';
+    window.appLocations.forEach(loc => {
+        const opt = document.createElement('option');
+        opt.value = loc;
+        opt.innerText = loc;
+        selectEl.appendChild(opt);
+    });
+};
+
+window.renderLocationManager = function() {
+    const list = document.getElementById('locations-manager-list');
+    list.innerHTML = '';
+    window.appLocations.forEach((loc, index) => {
+        const div = document.createElement('div');
+        div.className = 'location-list-item';
+        div.innerHTML = `
+            <span>${loc}</span>
+            <button class="btn-danger btn-sm" onclick="window.deleteLocation(${index})">X</button>
+        `;
+        list.appendChild(div);
+    });
+};
+
+window.addNewLocation = async function() {
+    const input = document.getElementById('newLocationInput');
+    const val = input.value.trim();
+    if (!val) return;
+    
+    if (!window.appLocations.includes(val)) {
+        window.appLocations.push(val);
+        input.value = "";
+        window.populateLocationDropdown();
+        window.renderLocationManager();
+        await window.saveLocationsToGitHub();
     }
-}
+};
+
+window.deleteLocation = async function(index) {
+    if(confirm("Delete this location option? (Existing tasks won't break, they will just show as 'Legacy').")) {
+        window.appLocations.splice(index, 1);
+        window.populateLocationDropdown();
+        window.renderLocationManager();
+        await window.saveLocationsToGitHub();
+    }
+};
+
+// --- GITHUB SYNC (Data & Locations) ---
+
+window.saveLocationsToGitHub = async function() {
+    const user = localStorage.getItem('ghUser');
+    const repo = localStorage.getItem('ghRepo');
+    const token = localStorage.getItem('ghToken');
+    if (!user || !repo || !token) return;
+
+    window.showStatusMsg("⏳ Saving Locations to GitHub...", "blue");
+    try {
+        const jsonString = JSON.stringify(window.appLocations, null, 2);
+        const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
+        const url = `https://api.github.com/repos/${user}/${repo}/contents/dropdowns/locations.json`;
+        
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: "Updated Locations via App", content: base64Content, sha: window.locationFileSha })
+        });
+        if (!response.ok) throw new Error("API Save Failed");
+        const result = await response.json();
+        window.locationFileSha = result.content.sha; 
+        window.showStatusMsg("✅ Locations Saved to GitHub!");
+    } catch (error) {
+        window.showStatusMsg("❌ Error saving locations.", "red");
+    }
+};
 
 window.saveToGitHub = async function() {
     const user = localStorage.getItem('ghUser');
@@ -118,33 +179,31 @@ window.saveToGitHub = async function() {
     const token = localStorage.getItem('ghToken');
 
     if (!user || !repo || !token) {
-        window.showStatusMsg("⚠️ Saved locally, but not to GitHub. Please check Settings.", "orange");
+        window.showStatusMsg("⚠️ Saved locally. Connect GitHub in Utilities to save permanently.", "orange");
         return;
     }
 
-    window.showStatusMsg("⏳ Saving to GitHub...", "blue");
-
+    window.showStatusMsg("⏳ Saving Data to GitHub...", "blue");
     try {
         const jsonString = JSON.stringify(window.appData, null, 2);
         const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
-        
         const url = `https://api.github.com/repos/${user}/${repo}/contents/data.json`;
+        
         const response = await fetch(url, {
             method: 'PUT',
             headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: "Updated via App", content: base64Content, sha: window.fileSha })
+            body: JSON.stringify({ message: "Updated Tasks via App", content: base64Content, sha: window.fileSha })
         });
-
         if (!response.ok) throw new Error("API Save Failed");
         const result = await response.json();
         window.fileSha = result.content.sha; 
-        window.showStatusMsg("✅ Saved to GitHub!");
+        window.showStatusMsg("✅ Data Saved to GitHub!");
     } catch (error) {
-        window.showStatusMsg("❌ Error saving. Check settings.", "red");
+        window.showStatusMsg("❌ Error saving data.", "red");
     }
 };
 
-async function loadData() {
+async function loadInitialData() {
     document.getElementById('ghUser').value = localStorage.getItem('ghUser') || '';
     document.getElementById('ghRepo').value = localStorage.getItem('ghRepo') || '';
     document.getElementById('ghToken').value = localStorage.getItem('ghToken') || '';
@@ -154,26 +213,40 @@ async function loadData() {
     const token = localStorage.getItem('ghToken');
 
     try {
-        let response;
+        let dataResponse, locResponse;
+        
         if (user && repo && token) {
-            const url = `https://api.github.com/repos/${user}/${repo}/contents/data.json`;
-            response = await fetch(url, { headers: { 'Authorization': `token ${token}` } });
+            // Fetch Data
+            const dataUrl = `https://api.github.com/repos/${user}/${repo}/contents/data.json`;
+            dataResponse = await fetch(dataUrl, { headers: { 'Authorization': `token ${token}` } });
+            if (dataResponse.ok) {
+                const dataResult = await dataResponse.json();
+                window.fileSha = dataResult.sha; 
+                window.appData = JSON.parse(decodeURIComponent(escape(atob(dataResult.content))));
+            }
             
-            if (!response.ok) throw new Error("Could not connect to Repo.");
-            const result = await response.json();
-            window.fileSha = result.sha; 
-            const jsonString = decodeURIComponent(escape(atob(result.content)));
-            window.appData = JSON.parse(jsonString);
+            // Fetch Locations
+            const locUrl = `https://api.github.com/repos/${user}/${repo}/contents/dropdowns/locations.json`;
+            locResponse = await fetch(locUrl, { headers: { 'Authorization': `token ${token}` } });
+            if (locResponse.ok) {
+                const locResult = await locResponse.json();
+                window.locationFileSha = locResult.sha;
+                window.appLocations = JSON.parse(decodeURIComponent(escape(atob(locResult.content))));
+            }
         } else {
-            response = await fetch('./data.json');
-            window.appData = await response.json();
+            // Local fallback
+            dataResponse = await fetch('./data.json');
+            window.appData = await dataResponse.json();
+            locResponse = await fetch('./dropdowns/locations.json');
+            window.appLocations = await locResponse.json();
         }
         
-        // Render both tabs
+        window.populateLocationDropdown();
+        window.renderLocationManager();
         if(window.renderAllViews) window.renderAllViews(); 
         
     } catch (error) {
-        document.getElementById('dashboard-list').innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+        document.getElementById('dashboard-list').innerHTML = `<p style="color:red;">Error loading: ${error.message}</p>`;
     }
 }
 
@@ -183,9 +256,8 @@ document.getElementById('settingsForm').addEventListener('submit', function(e) {
     localStorage.setItem('ghUser', document.getElementById('ghUser').value.trim());
     localStorage.setItem('ghRepo', document.getElementById('ghRepo').value.trim());
     localStorage.setItem('ghToken', document.getElementById('ghToken').value.trim());
-    window.closeModal('settingsModal');
-    window.showStatusMsg("⏳ Loading data...", "blue");
-    loadData(); 
+    window.showStatusMsg("⏳ Refreshing connection...", "blue");
+    loadInitialData(); 
 });
 
 document.getElementById('itemForm').addEventListener('submit', async function(e) {
@@ -251,5 +323,4 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
 });
 
 // Boot up
-fetchDropdowns();
-loadData();
+loadInitialData();
