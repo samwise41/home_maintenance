@@ -69,12 +69,19 @@ msg.attach(MIMEText(html, 'html'))
 
 # Send Email
 try:
-    # This uses Gmail's secure SMTP server
-    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    # Use Port 587 and TLS, which is Google's preferred method for App Passwords
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls() # Secure the connection
     server.login(os.environ.get('EMAIL_SENDER'), os.environ.get('EMAIL_PASSWORD'))
     server.sendmail(os.environ.get('EMAIL_SENDER'), [msg['To']], msg.as_string())
     server.quit()
     print("Reminder email sent successfully!")
+except smtplib.SMTPAuthenticationError:
+    print("Authentication failed: Check your EMAIL_SENDER and EMAIL_PASSWORD secrets.")
+    print("Ensure the password has NO spaces and 2FA is enabled on the Google account.")
+    exit(1)
 except Exception as e:
     print(f"Error sending email: {e}")
     exit(1)
+
