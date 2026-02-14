@@ -1,38 +1,45 @@
-let appData = { items: [] }; // Stores our data in memory
+let appData = { items: [] };
 
-// 1. Initialize and Load Data
-async function loadData() {
-    try {
-        const response = await fetch('data.json');
-        appData = await response.json();
-        renderDashboard();
-    } catch (error) {
-        document.getElementById('dashboard-list').innerHTML = `<p>Error loading data: ${error.message}</p>`;
-    }
-}
+// Make modal functions globally accessible to HTML buttons
+window.openAddModal = function() {
+    document.getElementById('itemForm').reset();
+    document.getElementById('itemLastCompleted').value = new Date().toISOString().split('T')[0];
+    document.getElementById('itemModal').style.display = "block";
+};
 
-// 2. Helper: Calculate Next Due Date (Adds X months to a date string)
+window.closeModal = function(modalId) {
+    document.getElementById(modalId).style.display = "none";
+};
+
+window.openLogModal = function(id) {
+    const item = appData.items.find(i => i.id === id);
+    if (!item) return; // safety check
+    
+    document.getElementById('logForm').reset();
+    document.getElementById('logItemId').value = item.id;
+    document.getElementById('logItemName').innerText = `Task: ${item.name} (${item.location})`;
+    document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('logModal').style.display = "block";
+};
+
+// Logic Functions
 function calculateNextDue(dateString, monthsToAdd) {
     const date = new Date(dateString);
     date.setMonth(date.getMonth() + parseInt(monthsToAdd));
-    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+    return date.toISOString().split('T')[0];
 }
 
-// 3. Helper: Get Status (Colors)
 function getStatus(nextDueDateStr) {
     const today = new Date();
     today.setHours(0,0,0,0);
     const nextDue = new Date(nextDueDateStr);
-    
-    const diffTime = nextDue - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    const diffDays = Math.ceil((nextDue - today) / (1000 * 60 * 60 * 24)); 
 
     if (diffDays < 0) return { class: 'status-overdue', text: '🚨 Overdue' };
     if (diffDays <= 30) return { class: 'status-soon', text: '⚠️ Due Soon' };
     return { class: 'status-ok', text: '✅ OK' };
 }
 
-// 4. Render the Dashboard
 function renderDashboard() {
     const listContainer = document.getElementById('dashboard-list');
     listContainer.innerHTML = ''; 
@@ -54,89 +61,68 @@ function renderDashboard() {
                 <p><strong>Next Due:</strong> ${formattedDate} <span class="badge ${status.class}">${status.text}</span></p>
             </div>
             <div class="actions">
-                <button class="btn-success" onclick="openLogModal('${item.id}', '${item.name}')">✅ Done</button>
+                <button class="btn-success" onclick="window.openLogModal('${item.id}')">✅ Done</button>
             </div>
         `;
         listContainer.appendChild(card);
     });
 }
 
-// 5. Modal Controllers
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = "none";
-}
-
-function openAddModal() {
-    document.getElementById('itemForm').reset();
-    document.getElementById('itemLastCompleted').value = new Date().toISOString().split('T')[0]; // Default to today
-    document.getElementById('itemModal').style.display = "block";
-}
-
-function openLogModal(id, name) {
-    document.getElementById('logForm').reset();
-    document.getElementById('logItemId').value = id;
-    document.getElementById('logItemName').innerText = `Task: ${name}`;
-    document.getElementById('logDate').value = new Date().toISOString().split('T')[0]; // Default to today
-    document.getElementById('logModal').style.display = "block";
-}
-
-// 6. Handle Form Submissions
-
-// ADD NEW ITEM
-document.getElementById('itemForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // Stop page refresh
-    
-    const name = document.getElementById('itemName').value;
-    const location = document.getElementById('itemLocation').value;
-    const category = document.getElementById('itemCategory').value;
-    const frequency = document.getElementById('itemFrequency').value;
-    const lastCompleted = document.getElementById('itemLastCompleted').value;
-    
-    // Create unique ID
-    const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
-    const nextDue = calculateNextDue(lastCompleted, frequency);
-
-    const newItem = {
-        id: id,
-        name: name,
-        location: location,
-        category: category,
-        frequency_months: parseInt(frequency),
-        next_due: nextDue,
-        history: [{ date_completed: lastCompleted, notes: "Initial entry" }]
-    };
-
-    appData.items.push(newItem);
-    closeModal('itemModal');
-    renderDashboard();
-});
-
-// LOG MAINTENANCE (MARK COMPLETE)
-document.getElementById('logForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const id = document.getElementById('logItemId').value;
-    const dateCompleted = document.getElementById('logDate').value;
-    const notes = document.getElementById('logNotes').value;
-    
-    // Find the item in our data array
-    const itemIndex = appData.items.findIndex(item => item.id === id);
-    
-    if (itemIndex > -1) {
-        // Add to history
-        appData.items[itemIndex].history.push({
-            date_completed: dateCompleted,
-            notes: notes
-        });
-        
-        // Calculate and update the new next_due date
-        const newNextDue = calculateNextDue(dateCompleted, appData.items[itemIndex].frequency_months);
-        appData.items[itemIndex].next_due = newNextDue;
-        
-        closeModal('logModal');
-        renderDashboard(); // Re-draw screen to show new dates
+async function loadData() {
+    try {
+        const response = await fetch('data.json');
+        if (!response.ok) throw new Error("Could not fetch data.json (Are you running a local server?)");
+        appData = await response.json();
+        renderDashboard();
+    } catch (error) {
+        document.getElementById('dashboard-list').innerHTML = `<p style="color:red; font-weight:bold;">Error: ${error.message}</p>`;
     }
-});
+}
 
-// Start the app
-loadData();
+// Wait for the HTML to fully load before attaching event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // Form Submit: Add New Item
+    document.getElementById('itemForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('itemName').value;
+        const frequency = document.getElementById('itemFrequency').value;
+        const lastCompleted = document.getElementById('itemLastCompleted').value;
+        
+        const newItem = {
+            id: 'item-' + Date.now(),
+            name: name,
+            location: document.getElementById('itemLocation').value,
+            category: document.getElementById('itemCategory').value,
+            frequency_months: parseInt(frequency),
+            next_due: calculateNextDue(lastCompleted, frequency),
+            history: [{ date_completed: lastCompleted, notes: "Initial entry" }]
+        };
+
+        appData.items.push(newItem);
+        window.closeModal('itemModal');
+        renderDashboard();
+    });
+
+    // Form Submit: Log Maintenance (Done)
+    document.getElementById('logForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = document.getElementById('logItemId').value;
+        const dateCompleted = document.getElementById('logDate').value;
+        
+        const itemIndex = appData.items.findIndex(i => i.id === id);
+        if (itemIndex > -1) {
+            appData.items[itemIndex].history.push({
+                date_completed: dateCompleted,
+                notes: document.getElementById('logNotes').value
+            });
+            appData.items[itemIndex].next_due = calculateNextDue(dateCompleted, appData.items[itemIndex].frequency_months);
+            
+            window.closeModal('logModal');
+            renderDashboard();
+        }
+    });
+
+    // Boot up the app
+    loadData();
+});
