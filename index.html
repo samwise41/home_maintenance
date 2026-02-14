@@ -202,10 +202,14 @@
     </div>
 </div>
 
-<script>
+<<script>
     var cacheBuster = '?v=' + new Date().getTime();
     document.write('<script src="js/app.js' + cacheBuster + '"><\/script>');
-    document.write('<script src="js/dashboard.js' + cacheBuster + '"><\/script>');
+    document.write('<script src="js/tab-dashboard.js' + cacheBuster + '"><\/script>');
+    document.write('<script src="js/tab-tasks.js' + cacheBuster + '"><\/script>');
+    document.write('<script src="js/tab-settings.js' + cacheBuster + '"><\/script>');
+</script>
+
 </script>
 </body>
 </html>
