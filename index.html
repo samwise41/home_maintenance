@@ -18,10 +18,9 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        button { cursor: pointer; border: none; border-radius: 5px; padding: 10px 15px; font-weight: bold; }
+        button { cursor: pointer; border: none; border-radius: 5px; padding: 10px 15px; font-weight: bold; font-size: 1em; }
         .btn-primary { background-color: var(--primary-btn); color: white; }
         .btn-success { background-color: var(--success); color: white; }
-        .btn-outline { background-color: transparent; border: 1px solid #ccc; margin-left: 5px; }
         
         /* Card Styles */
         .item-card { background-color: var(--card-bg); border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
@@ -33,30 +32,39 @@
         .status-ok { background-color: var(--success); }
         
         /* Modal Styles */
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; position: relative;}
+        .close { color: #aaa; position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; }
         .close:hover { color: black; }
         
         /* Form Styles */
         form { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         label { font-weight: bold; font-size: 0.9em; }
-        input, select, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+        input, select, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; width: 100%; box-sizing: border-box;}
+        
+        /* Mobile Responsive Magic */
+        @media (max-width: 600px) {
+            .header { flex-direction: column; align-items: stretch; gap: 15px; text-align: center; }
+            .item-card { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .actions { width: 100%; display: flex; flex-direction: column; }
+            .actions button { width: 100%; padding: 15px; }
+            .modal-content { margin: 20% auto; width: 95%; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>🏠 Home Maintenance</h1>
-        <button class="btn-primary" onclick="openAddModal()">+ Add New Item</button>
+        <h1>🏠 Home Tracker</h1>
+        <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
     </div>
     <div id="dashboard-list"><p>Loading your tasks...</p></div>
 </div>
 
 <div id="itemModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal('itemModal')">&times;</span>
+        <span class="close" onclick="window.closeModal('itemModal')">&times;</span>
         <h2>Add New Task</h2>
         <form id="itemForm">
             <label>Task Name:</label>
@@ -88,9 +96,9 @@
 
 <div id="logModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal('logModal')">&times;</span>
+        <span class="close" onclick="window.closeModal('logModal')">&times;</span>
         <h2>✅ Log Maintenance</h2>
-        <p id="logItemName" style="color: var(--text-light);"></p>
+        <p id="logItemName" style="color: var(--text-light); font-weight: bold;"></p>
         <form id="logForm">
             <input type="hidden" id="logItemId">
             
