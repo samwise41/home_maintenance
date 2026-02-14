@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -20,74 +19,86 @@
             --warning: #ffc107;
             --success: #28a745;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; }
+        
+        /* Navigation Menu */
+        .navbar { background-color: #333; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-links { display: flex; gap: 15px; }
+        .nav-tab { cursor: pointer; padding: 8px 12px; border-radius: 4px; font-weight: bold; background: transparent; color: #ccc; border: none; }
+        .nav-tab.active { background-color: #555; color: white; }
+        .nav-tab:hover { color: white; }
+        
+        .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
+        
+        /* Tab Contents */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header-buttons { display: flex; gap: 10px; }
-        button { cursor: pointer; border: none; border-radius: 5px; padding: 10px 15px; font-weight: bold; font-size: 1em; }
         
-        .btn-primary { background-color: var(--primary-btn); color: white; }
-        .btn-outline { background-color: transparent; border: 1px solid #ccc; color: var(--text-main); }
+        /* Buttons */
+        button { cursor: pointer; border: none; border-radius: 5px; font-weight: bold; }
+        .btn-primary { background-color: var(--primary-btn); color: white; padding: 10px 15px; font-size: 1em; }
+        .btn-sm { padding: 6px 12px; font-size: 0.85em; border-radius: 4px; }
+        .btn-outline { background-color: transparent; border: 1px solid #ccc; color: var(--text-main); padding: 6px 12px; }
         
-        .item-card { background-color: var(--card-bg); border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .item-info h3 { margin: 0 0 5px 0; }
-        .item-info p { margin: 0; color: var(--text-light); font-size: 0.9em; line-height: 1.4; }
-        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; color: white; display: inline-block; margin-top: 5px; }
+        /* Dashboard Cards */
+        .item-card { background-color: var(--card-bg); border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .card-header h3 { margin: 0; font-size: 1.2em; }
+        .card-body p { margin: 0 0 5px 0; color: var(--text-light); font-size: 0.9em; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
         
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; color: white; display: inline-block; }
         .status-overdue { background-color: var(--danger); }
         .status-soon { background-color: var(--warning); color: #333; }
         .status-ok { background-color: var(--success); }
         
+        /* Modals & Forms */
         .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; position: relative;}
+        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; position: relative; max-height: 85vh; overflow-y: auto;}
         .close { color: #aaa; position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; }
         .close:hover { color: black; }
-        
         form { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         label { font-weight: bold; font-size: 0.9em; }
         input, select, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; width: 100%; box-sizing: border-box;}
         
         @media (max-width: 600px) {
-            .header { flex-direction: column; align-items: stretch; gap: 15px; text-align: center; }
-            .header-buttons { flex-direction: column; }
-            .item-card { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .actions { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-            .actions button { width: 100%; margin: 0; padding: 15px; }
-            .modal-content { margin: 20% auto; width: 95%; }
+            .navbar { flex-direction: column; gap: 10px; }
         }
     </style>
 </head>
 <body>
 
+<nav class="navbar">
+    <div style="font-weight: bold; font-size: 1.2em;">🏠 Home Tracker</div>
+    <div class="nav-links">
+        <button class="nav-tab active" onclick="window.switchTab('tab-dashboard')">Dashboard</button>
+        <button class="nav-tab" onclick="window.switchTab('tab-settings')">Settings</button>
+    </div>
+</nav>
+
 <div class="container">
-    <div class="header">
-        <h1>🏠 Home Tracker</h1>
-        <div class="header-buttons">
-            <button class="btn-outline" onclick="window.openSettingsModal()">⚙️ Settings</button>
+    <div id="status-message" style="margin-bottom: 15px; font-weight: bold; text-align: center;"></div>
+
+    <div id="tab-dashboard" class="tab-content active">
+        <div class="header">
+            <h2>Upcoming Tasks</h2>
             <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
         </div>
+        <div id="dashboard-list"><p>Loading your tasks...</p></div>
     </div>
-    
-    <div id="status-message" style="margin-bottom: 15px; font-weight: bold;"></div>
-    
-    <div id="dashboard-list"><p>Loading your tasks...</p></div>
-</div>
 
-<div id="settingsModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="window.closeModal('settingsModal')">&times;</span>
+    <div id="tab-settings" class="tab-content">
         <h2>⚙️ GitHub Sync Setup</h2>
-        <p style="font-size: 0.9em; color: var(--text-light);">Store your info here to save changes permanently. This is stored securely in your browser.</p>
-        <form id="settingsForm">
+        <p style="color: var(--text-light);">Store your info here to save changes permanently to GitHub.</p>
+        <form id="settingsForm" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <label>GitHub Username:</label>
-            <input type="text" id="ghUser" placeholder="e.g., octocat" required>
-            
+            <input type="text" id="ghUser" required>
             <label>Repository Name:</label>
-            <input type="text" id="ghRepo" placeholder="e.g., home-tracker" required>
-            
+            <input type="text" id="ghRepo" required>
             <label>Personal Access Token (PAT):</label>
-            <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxx" required>
-            
+            <input type="password" id="ghToken" required>
             <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Credentials</button>
         </form>
     </div>
@@ -101,8 +112,12 @@
             <input type="hidden" id="itemId">
             <label>Task Name:</label>
             <input type="text" id="itemName" required>
+            
             <label>Location:</label>
-            <input type="text" id="itemLocation" required>
+            <select id="itemLocation" required>
+                <option value="">Select a location...</option>
+            </select>
+            
             <label>Category:</label>
             <select id="itemCategory">
                 <option value="HVAC">HVAC</option>
@@ -140,9 +155,9 @@
 </div>
 
 <script>
-    const script = document.createElement('script');
-    script.src = 'app.js?v=' + new Date().getTime();
-    document.body.appendChild(script);
+    var cacheBuster = '?v=' + new Date().getTime();
+    document.write('<script src="js/app.js' + cacheBuster + '"><\/script>');
+    document.write('<script src="js/dashboard.js' + cacheBuster + '"><\/script>');
 </script>
 </body>
 </html>
