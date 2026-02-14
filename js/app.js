@@ -4,6 +4,9 @@ window.fileSha = "";
 window.appLocations = [];
 window.locationFileSha = "";
 
+window.appCategories = [];
+window.categoryFileSha = "";
+
 // --- TAB NAVIGATION ---
 window.switchTab = function(tabId, element) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -23,8 +26,9 @@ window.openAddModal = function() {
     document.getElementById('itemLastCompleted').value = ""; 
     document.getElementById('deleteBtn').style.display = "none"; 
     
-    // Refresh dropdown to normal state
+    // Refresh both dropdowns to normal state
     window.populateLocationDropdown();
+    window.populateCategoryDropdown();
     
     document.getElementById('itemModal').style.display = "block";
 };
@@ -37,12 +41,11 @@ window.openEditModal = function(id) {
     document.getElementById('modalTitle').innerText = "Edit Task";
     document.getElementById('itemId').value = item.id;
     document.getElementById('itemName').value = item.name;
-    document.getElementById('itemCategory').value = item.category;
     document.getElementById('itemFrequency').value = item.frequency_months;
     document.getElementById('lastCompletedContainer').style.display = "block";
     document.getElementById('deleteBtn').style.display = "block"; 
     
-    // Fix for the Null Bug: If the item's location isn't in our array, add it temporarily so it doesn't wipe out
+    // Set up Location Dropdown (with Legacy check)
     window.populateLocationDropdown(); 
     const locSelect = document.getElementById('itemLocation');
     if (item.location && !window.appLocations.includes(item.location)) {
@@ -52,6 +55,17 @@ window.openEditModal = function(id) {
         locSelect.appendChild(opt);
     }
     locSelect.value = item.location || "";
+
+    // Set up Category Dropdown (with Legacy check)
+    window.populateCategoryDropdown();
+    const catSelect = document.getElementById('itemCategory');
+    if (item.category && !window.appCategories.includes(item.category)) {
+        const opt = document.createElement('option');
+        opt.value = item.category;
+        opt.innerText = item.category + " (Legacy)";
+        catSelect.appendChild(opt);
+    }
+    catSelect.value = item.category || "";
     
     if (item.history && item.history.length > 0) {
         document.getElementById('itemLastCompleted').value = item.history[item.history.length - 1].date_completed;
@@ -96,7 +110,7 @@ window.deleteItem = async function() {
     await window.saveToGitHub();
 };
 
-// --- LOCATION UTILITIES ---
+// --- DROPDOWN UTILITIES (Locations & Categories) ---
 window.populateLocationDropdown = function() {
     const selectEl = document.getElementById('itemLocation');
     selectEl.innerHTML = '<option value="">Select a location...</option>';
@@ -114,10 +128,29 @@ window.renderLocationManager = function() {
     window.appLocations.forEach((loc, index) => {
         const div = document.createElement('div');
         div.className = 'location-list-item';
-        div.innerHTML = `
-            <span>${loc}</span>
-            <button class="btn-danger btn-sm" onclick="window.deleteLocation(${index})">X</button>
-        `;
+        div.innerHTML = `<span>${loc}</span><button class="btn-danger btn-sm" onclick="window.deleteLocation(${index})">X</button>`;
+        list.appendChild(div);
+    });
+};
+
+window.populateCategoryDropdown = function() {
+    const selectEl = document.getElementById('itemCategory');
+    selectEl.innerHTML = '<option value="">Select a category...</option>';
+    window.appCategories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.innerText = cat;
+        selectEl.appendChild(opt);
+    });
+};
+
+window.renderCategoryManager = function() {
+    const list = document.getElementById('categories-manager-list');
+    list.innerHTML = '';
+    window.appCategories.forEach((cat, index) => {
+        const div = document.createElement('div');
+        div.className = 'location-list-item';
+        div.innerHTML = `<span>${cat}</span><button class="btn-danger btn-sm" onclick="window.deleteCategory(${index})">X</button>`;
         list.appendChild(div);
     });
 };
@@ -126,7 +159,6 @@ window.addNewLocation = async function() {
     const input = document.getElementById('newLocationInput');
     const val = input.value.trim();
     if (!val) return;
-    
     if (!window.appLocations.includes(val)) {
         window.appLocations.push(val);
         input.value = "";
@@ -137,7 +169,7 @@ window.addNewLocation = async function() {
 };
 
 window.deleteLocation = async function(index) {
-    if(confirm("Delete this location option? (Existing tasks won't break, they will just show as 'Legacy').")) {
+    if(confirm("Delete this location? (Existing tasks won't break, they will show as 'Legacy').")) {
         window.appLocations.splice(index, 1);
         window.populateLocationDropdown();
         window.renderLocationManager();
@@ -145,62 +177,87 @@ window.deleteLocation = async function(index) {
     }
 };
 
-// --- GITHUB SYNC (Data & Locations) ---
+window.addNewCategory = async function() {
+    const input = document.getElementById('newCategoryInput');
+    const val = input.value.trim();
+    if (!val) return;
+    if (!window.appCategories.includes(val)) {
+        window.appCategories.push(val);
+        input.value = "";
+        window.populateCategoryDropdown();
+        window.renderCategoryManager();
+        await window.saveCategoriesToGitHub();
+    }
+};
 
+window.deleteCategory = async function(index) {
+    if(confirm("Delete this category? (Existing tasks won't break, they will show as 'Legacy').")) {
+        window.appCategories.splice(index, 1);
+        window.populateCategoryDropdown();
+        window.renderCategoryManager();
+        await window.saveCategoriesToGitHub();
+    }
+};
+
+// --- GITHUB SYNC ---
 window.saveLocationsToGitHub = async function() {
-    const user = localStorage.getItem('ghUser');
-    const repo = localStorage.getItem('ghRepo');
-    const token = localStorage.getItem('ghToken');
+    const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
     if (!user || !repo || !token) return;
-
-    window.showStatusMsg("⏳ Saving Locations to GitHub...", "blue");
+    window.showStatusMsg("⏳ Saving Locations...", "blue");
     try {
         const jsonString = JSON.stringify(window.appLocations, null, 2);
-        const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
         const url = `https://api.github.com/repos/${user}/${repo}/contents/dropdowns/locations.json`;
-        
         const response = await fetch(url, {
             method: 'PUT',
             headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: "Updated Locations via App", content: base64Content, sha: window.locationFileSha })
+            body: JSON.stringify({ message: "Updated Locations", content: btoa(unescape(encodeURIComponent(jsonString))), sha: window.locationFileSha })
         });
         if (!response.ok) throw new Error("API Save Failed");
         const result = await response.json();
         window.locationFileSha = result.content.sha; 
-        window.showStatusMsg("✅ Locations Saved to GitHub!");
-    } catch (error) {
-        window.showStatusMsg("❌ Error saving locations.", "red");
-    }
+        window.showStatusMsg("✅ Locations Saved!");
+    } catch (error) { window.showStatusMsg("❌ Error saving locations.", "red"); }
 };
 
-window.saveToGitHub = async function() {
-    const user = localStorage.getItem('ghUser');
-    const repo = localStorage.getItem('ghRepo');
-    const token = localStorage.getItem('ghToken');
-
-    if (!user || !repo || !token) {
-        window.showStatusMsg("⚠️ Saved locally. Connect GitHub in Utilities to save permanently.", "orange");
-        return;
-    }
-
-    window.showStatusMsg("⏳ Saving Data to GitHub...", "blue");
+window.saveCategoriesToGitHub = async function() {
+    const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
+    if (!user || !repo || !token) return;
+    window.showStatusMsg("⏳ Saving Categories...", "blue");
     try {
-        const jsonString = JSON.stringify(window.appData, null, 2);
-        const base64Content = btoa(unescape(encodeURIComponent(jsonString)));
-        const url = `https://api.github.com/repos/${user}/${repo}/contents/data.json`;
-        
+        const jsonString = JSON.stringify(window.appCategories, null, 2);
+        const url = `https://api.github.com/repos/${user}/${repo}/contents/dropdowns/categories.json`;
         const response = await fetch(url, {
             method: 'PUT',
             headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: "Updated Tasks via App", content: base64Content, sha: window.fileSha })
+            body: JSON.stringify({ message: "Updated Categories", content: btoa(unescape(encodeURIComponent(jsonString))), sha: window.categoryFileSha })
+        });
+        if (!response.ok) throw new Error("API Save Failed");
+        const result = await response.json();
+        window.categoryFileSha = result.content.sha; 
+        window.showStatusMsg("✅ Categories Saved!");
+    } catch (error) { window.showStatusMsg("❌ Error saving categories.", "red"); }
+};
+
+window.saveToGitHub = async function() {
+    const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
+    if (!user || !repo || !token) {
+        window.showStatusMsg("⚠️ Saved locally. Connect GitHub to save permanently.", "orange");
+        return;
+    }
+    window.showStatusMsg("⏳ Saving Tasks...", "blue");
+    try {
+        const jsonString = JSON.stringify(window.appData, null, 2);
+        const url = `https://api.github.com/repos/${user}/${repo}/contents/data.json`;
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: "Updated Tasks", content: btoa(unescape(encodeURIComponent(jsonString))), sha: window.fileSha })
         });
         if (!response.ok) throw new Error("API Save Failed");
         const result = await response.json();
         window.fileSha = result.content.sha; 
-        window.showStatusMsg("✅ Data Saved to GitHub!");
-    } catch (error) {
-        window.showStatusMsg("❌ Error saving data.", "red");
-    }
+        window.showStatusMsg("✅ Tasks Saved!");
+    } catch (error) { window.showStatusMsg("❌ Error saving tasks.", "red"); }
 };
 
 async function loadInitialData() {
@@ -208,17 +265,12 @@ async function loadInitialData() {
     document.getElementById('ghRepo').value = localStorage.getItem('ghRepo') || '';
     document.getElementById('ghToken').value = localStorage.getItem('ghToken') || '';
 
-    const user = localStorage.getItem('ghUser');
-    const repo = localStorage.getItem('ghRepo');
-    const token = localStorage.getItem('ghToken');
+    const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
 
     try {
-        let dataResponse, locResponse;
-        
         if (user && repo && token) {
             // Fetch Data
-            const dataUrl = `https://api.github.com/repos/${user}/${repo}/contents/data.json`;
-            dataResponse = await fetch(dataUrl, { headers: { 'Authorization': `token ${token}` } });
+            const dataResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/data.json`, { headers: { 'Authorization': `token ${token}` } });
             if (dataResponse.ok) {
                 const dataResult = await dataResponse.json();
                 window.fileSha = dataResult.sha; 
@@ -226,23 +278,33 @@ async function loadInitialData() {
             }
             
             // Fetch Locations
-            const locUrl = `https://api.github.com/repos/${user}/${repo}/contents/dropdowns/locations.json`;
-            locResponse = await fetch(locUrl, { headers: { 'Authorization': `token ${token}` } });
+            const locResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/dropdowns/locations.json`, { headers: { 'Authorization': `token ${token}` } });
             if (locResponse.ok) {
                 const locResult = await locResponse.json();
                 window.locationFileSha = locResult.sha;
                 window.appLocations = JSON.parse(decodeURIComponent(escape(atob(locResult.content))));
             }
+
+            // Fetch Categories
+            const catResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/dropdowns/categories.json`, { headers: { 'Authorization': `token ${token}` } });
+            if (catResponse.ok) {
+                const catResult = await catResponse.json();
+                window.categoryFileSha = catResult.sha;
+                window.appCategories = JSON.parse(decodeURIComponent(escape(atob(catResult.content))));
+            }
         } else {
             // Local fallback
-            dataResponse = await fetch('./data.json');
-            window.appData = await dataResponse.json();
-            locResponse = await fetch('./dropdowns/locations.json');
-            window.appLocations = await locResponse.json();
+            const dataResponse = await fetch('./data.json'); window.appData = await dataResponse.json();
+            const locResponse = await fetch('./dropdowns/locations.json'); window.appLocations = await locResponse.json();
+            const catResponse = await fetch('./dropdowns/categories.json'); window.appCategories = await catResponse.json();
         }
         
         window.populateLocationDropdown();
         window.renderLocationManager();
+        
+        window.populateCategoryDropdown();
+        window.renderCategoryManager();
+        
         if(window.renderAllViews) window.renderAllViews(); 
         
     } catch (error) {
@@ -322,5 +384,4 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
     }
 });
 
-// Boot up
 loadInitialData();
