@@ -102,6 +102,15 @@
       "history": []
     },
     {
+      "id": "item-1771111297144",
+      "name": "Clean behind fridge",
+      "location": "Kitchen",
+      "category": "Appliance",
+      "frequency_months": 12,
+      "next_due": "2026-02-14",
+      "history": []
+    },
+    {
       "id": "smoke-detectors",
       "name": "Check Batteries",
       "location": "Whole House",
