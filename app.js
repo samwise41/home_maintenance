@@ -11,9 +11,11 @@ window.openAddModal = function() {
     document.getElementById('itemForm').reset();
     document.getElementById('itemId').value = ""; // Clear ID
     document.getElementById('modalTitle').innerText = "Add New Task";
-    document.getElementById('lastCompletedContainer').style.display = "block"; // Show date field
+    
+    document.getElementById('lastCompletedContainer').style.display = "block"; 
     document.getElementById('itemLastCompleted').value = new Date().toISOString().split('T')[0];
     document.getElementById('itemLastCompleted').required = true;
+    
     document.getElementById('itemModal').style.display = "block";
 };
 
@@ -32,9 +34,16 @@ window.openEditModal = function(id) {
     document.getElementById('itemCategory').value = item.category;
     document.getElementById('itemFrequency').value = item.frequency_months;
     
-    // Hide the initial 'last completed' field when editing
-    document.getElementById('lastCompletedContainer').style.display = "none";
-    document.getElementById('itemLastCompleted').required = false;
+    // Grab the most recent date from the history array to populate the date picker
+    document.getElementById('lastCompletedContainer').style.display = "block";
+    document.getElementById('itemLastCompleted').required = true;
+    
+    if (item.history && item.history.length > 0) {
+        const latestHistory = item.history[item.history.length - 1];
+        document.getElementById('itemLastCompleted').value = latestHistory.date_completed;
+    } else {
+        document.getElementById('itemLastCompleted').value = ""; 
+    }
 
     document.getElementById('itemModal').style.display = "block";
 };
@@ -105,7 +114,6 @@ function renderDashboard() {
 
 async function loadData() {
     try {
-        // Use relative path for GitHub pages compatibility
         const response = await fetch('./data.json');
         if (!response.ok) throw new Error("Could not fetch data.json");
         appData = await response.json();
@@ -128,6 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const location = document.getElementById('itemLocation').value;
         const category = document.getElementById('itemCategory').value;
         const frequency = parseInt(document.getElementById('itemFrequency').value);
+        const lastCompletedDate = document.getElementById('itemLastCompleted').value;
 
         if (idToEdit) {
             // WE ARE EDITING AN EXISTING ITEM
@@ -138,23 +147,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 appData.items[index].category = category;
                 appData.items[index].frequency_months = frequency;
                 
-                // If frequency changed, recalculate the next due date based on the latest history
+                // Update the most recent history entry with the new date
                 if (appData.items[index].history && appData.items[index].history.length > 0) {
-                    const latestHistoryDate = appData.items[index].history[appData.items[index].history.length - 1].date_completed;
-                    appData.items[index].next_due = calculateNextDue(latestHistoryDate, frequency);
+                    appData.items[index].history[appData.items[index].history.length - 1].date_completed = lastCompletedDate;
+                } else {
+                    // Fallback just in case history is empty
+                    appData.items[index].history = [{ date_completed: lastCompletedDate, notes: "Added via edit" }];
                 }
+                
+                // Recalculate next due date based on the edited date
+                appData.items[index].next_due = calculateNextDue(lastCompletedDate, frequency);
             }
         } else {
             // WE ARE ADDING A BRAND NEW ITEM
-            const lastCompleted = document.getElementById('itemLastCompleted').value;
             const newItem = {
                 id: 'item-' + Date.now(),
                 name: name,
                 location: location,
                 category: category,
                 frequency_months: frequency,
-                next_due: calculateNextDue(lastCompleted, frequency),
-                history: [{ date_completed: lastCompleted, notes: "Initial entry" }]
+                next_due: calculateNextDue(lastCompletedDate, frequency),
+                history: [{ date_completed: lastCompletedDate, notes: "Initial entry" }]
             };
             appData.items.push(newItem);
         }
