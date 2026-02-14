@@ -1,6 +1,20 @@
 {
   "items": [
     {
+      "id": "item-1771053622180",
+      "name": "Clean Carpets - M Bedroom",
+      "location": "M Bedroom ",
+      "category": "Flooring",
+      "frequency_months": 12,
+      "next_due": "2025-09-03",
+      "history": [
+        {
+          "date_completed": "2024-09-03",
+          "notes": "Initial entry"
+        }
+      ]
+    },
+    {
       "id": "furnace-filter",
       "name": "Change Furnace Filter ",
       "location": "Basement HVAC",
