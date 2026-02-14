@@ -137,6 +137,13 @@
     </div>
 </div>
 
-<script src="app.js"></script>
+    <script>
+        // Cache-busting script loader
+        // This forces the browser to download a fresh app.js every time by appending a unique timestamp
+        const script = document.createElement('script');
+        script.src = 'app.js?v=' + new Date().getTime();
+        document.body.appendChild(script);
+    </script>
+
 </body>
 </html>
