@@ -8,6 +8,9 @@
     <meta http-equiv="Expires" content="0">
     
     <title>Home Maintenance Tracker</title>
+   <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a252f">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
     <style>
         :root {
             --bg-color: #f4f4f9;
@@ -210,6 +213,15 @@
     document.write('<script src="js/tab-settings.js' + cacheBuster + '"><\/script>');
 </script>
 
+</script>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered!'))
+                .catch(err => console.log('Service Worker failed:', err));
+        });
+    }
 </script>
 </body>
 </html>
