@@ -59,7 +59,7 @@
     {
       "id": "furnace-filter",
       "name": "Change Furnace Filter ",
-      "location": "Basement HVAC",
+      "location": "Basement",
       "category": "HVAC",
       "frequency_months": 3,
       "next_due": "2026-01-15",
