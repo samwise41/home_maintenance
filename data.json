@@ -57,6 +57,15 @@
       ]
     },
     {
+      "id": "item-1771056271580",
+      "name": "Clean Ducts",
+      "location": "Whole House",
+      "category": "HVAC",
+      "frequency_months": 12,
+      "next_due": "2026-02-14",
+      "history": []
+    },
+    {
       "id": "smoke-detectors",
       "name": "Check Batteries",
       "location": "Whole House",
