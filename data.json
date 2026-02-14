@@ -1,6 +1,20 @@
 {
   "items": [
     {
+      "id": "item-1771053685992",
+      "name": "Clean Carpets - E Bedroom ",
+      "location": "E Bedroom ",
+      "category": "Flooring",
+      "frequency_months": 12,
+      "next_due": "2025-08-07",
+      "history": [
+        {
+          "date_completed": "2024-08-07",
+          "notes": "Initial entry"
+        }
+      ]
+    },
+    {
       "id": "item-1771053622180",
       "name": "Clean Carpets - M Bedroom",
       "location": "M Bedroom ",
