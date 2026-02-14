@@ -1,19 +1,48 @@
 let appData = { items: [] };
 
-// Make modal functions globally accessible to HTML buttons
-window.openAddModal = function() {
-    document.getElementById('itemForm').reset();
-    document.getElementById('itemLastCompleted').value = new Date().toISOString().split('T')[0];
-    document.getElementById('itemModal').style.display = "block";
-};
+// --- MODAL CONTROLLERS ---
 
 window.closeModal = function(modalId) {
     document.getElementById(modalId).style.display = "none";
 };
 
+// Open as ADD NEW
+window.openAddModal = function() {
+    document.getElementById('itemForm').reset();
+    document.getElementById('itemId').value = ""; // Clear ID
+    document.getElementById('modalTitle').innerText = "Add New Task";
+    document.getElementById('lastCompletedContainer').style.display = "block"; // Show date field
+    document.getElementById('itemLastCompleted').value = new Date().toISOString().split('T')[0];
+    document.getElementById('itemLastCompleted').required = true;
+    document.getElementById('itemModal').style.display = "block";
+};
+
+// Open as EDIT
+window.openEditModal = function(id) {
+    const item = appData.items.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById('itemForm').reset();
+    document.getElementById('modalTitle').innerText = "Edit Task";
+    
+    // Fill the form with existing data
+    document.getElementById('itemId').value = item.id;
+    document.getElementById('itemName').value = item.name;
+    document.getElementById('itemLocation').value = item.location;
+    document.getElementById('itemCategory').value = item.category;
+    document.getElementById('itemFrequency').value = item.frequency_months;
+    
+    // Hide the initial 'last completed' field when editing
+    document.getElementById('lastCompletedContainer').style.display = "none";
+    document.getElementById('itemLastCompleted').required = false;
+
+    document.getElementById('itemModal').style.display = "block";
+};
+
+// Open MARK COMPLETE
 window.openLogModal = function(id) {
     const item = appData.items.find(i => i.id === id);
-    if (!item) return; // safety check
+    if (!item) return; 
     
     document.getElementById('logForm').reset();
     document.getElementById('logItemId').value = item.id;
@@ -22,7 +51,8 @@ window.openLogModal = function(id) {
     document.getElementById('logModal').style.display = "block";
 };
 
-// Logic Functions
+// --- LOGIC FUNCTIONS ---
+
 function calculateNextDue(dateString, monthsToAdd) {
     const date = new Date(dateString);
     date.setMonth(date.getMonth() + parseInt(monthsToAdd));
@@ -39,6 +69,8 @@ function getStatus(nextDueDateStr) {
     if (diffDays <= 30) return { class: 'status-soon', text: '⚠️ Due Soon' };
     return { class: 'status-ok', text: '✅ OK' };
 }
+
+// --- UI RENDERING ---
 
 function renderDashboard() {
     const listContainer = document.getElementById('dashboard-list');
@@ -62,49 +94,76 @@ function renderDashboard() {
             </div>
             <div class="actions">
                 <button class="btn-success" onclick="window.openLogModal('${item.id}')">✅ Done</button>
+                <button class="btn-outline" onclick="window.openEditModal('${item.id}')">✏️ Edit</button>
             </div>
         `;
         listContainer.appendChild(card);
     });
 }
 
+// --- DATA FETCHING ---
+
 async function loadData() {
     try {
-        const response = await fetch('data.json');
-        if (!response.ok) throw new Error("Could not fetch data.json (Are you running a local server?)");
+        // Use relative path for GitHub pages compatibility
+        const response = await fetch('./data.json');
+        if (!response.ok) throw new Error("Could not fetch data.json");
         appData = await response.json();
         renderDashboard();
     } catch (error) {
-        document.getElementById('dashboard-list').innerHTML = `<p style="color:red; font-weight:bold;">Error: ${error.message}</p>`;
+        document.getElementById('dashboard-list').innerHTML = `<p style="color:red; font-weight:bold;">Error: ${error.message}. <br><br>Make sure data.json is uploaded to your GitHub repo.</p>`;
     }
 }
 
-// Wait for the HTML to fully load before attaching event listeners
+// --- FORM SUBMISSIONS ---
+
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Form Submit: Add New Item
+    // Handle Add OR Edit Submission
     document.getElementById('itemForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const name = document.getElementById('itemName').value;
-        const frequency = document.getElementById('itemFrequency').value;
-        const lastCompleted = document.getElementById('itemLastCompleted').value;
         
-        const newItem = {
-            id: 'item-' + Date.now(),
-            name: name,
-            location: document.getElementById('itemLocation').value,
-            category: document.getElementById('itemCategory').value,
-            frequency_months: parseInt(frequency),
-            next_due: calculateNextDue(lastCompleted, frequency),
-            history: [{ date_completed: lastCompleted, notes: "Initial entry" }]
-        };
+        const idToEdit = document.getElementById('itemId').value;
+        const name = document.getElementById('itemName').value;
+        const location = document.getElementById('itemLocation').value;
+        const category = document.getElementById('itemCategory').value;
+        const frequency = parseInt(document.getElementById('itemFrequency').value);
 
-        appData.items.push(newItem);
+        if (idToEdit) {
+            // WE ARE EDITING AN EXISTING ITEM
+            const index = appData.items.findIndex(i => i.id === idToEdit);
+            if (index > -1) {
+                appData.items[index].name = name;
+                appData.items[index].location = location;
+                appData.items[index].category = category;
+                appData.items[index].frequency_months = frequency;
+                
+                // If frequency changed, recalculate the next due date based on the latest history
+                if (appData.items[index].history && appData.items[index].history.length > 0) {
+                    const latestHistoryDate = appData.items[index].history[appData.items[index].history.length - 1].date_completed;
+                    appData.items[index].next_due = calculateNextDue(latestHistoryDate, frequency);
+                }
+            }
+        } else {
+            // WE ARE ADDING A BRAND NEW ITEM
+            const lastCompleted = document.getElementById('itemLastCompleted').value;
+            const newItem = {
+                id: 'item-' + Date.now(),
+                name: name,
+                location: location,
+                category: category,
+                frequency_months: frequency,
+                next_due: calculateNextDue(lastCompleted, frequency),
+                history: [{ date_completed: lastCompleted, notes: "Initial entry" }]
+            };
+            appData.items.push(newItem);
+        }
+
         window.closeModal('itemModal');
         renderDashboard();
     });
 
-    // Form Submit: Log Maintenance (Done)
+    // Handle Mark Complete Submission
     document.getElementById('logForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const id = document.getElementById('logItemId').value;
