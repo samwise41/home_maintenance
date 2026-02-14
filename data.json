@@ -2,7 +2,7 @@
   "items": [
     {
       "id": "furnace-filter",
-      "name": "Change Furnace",
+      "name": "Change Furnace Filter ",
       "location": "Basement HVAC",
       "category": "HVAC",
       "frequency_months": 3,
