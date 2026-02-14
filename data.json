@@ -15,6 +15,20 @@
       ]
     },
     {
+      "id": "item-1771053656296",
+      "name": "Clean Carpets - J Bedroom ",
+      "location": "J Bedroom ",
+      "category": "Flooring",
+      "frequency_months": 12,
+      "next_due": "2025-09-03",
+      "history": [
+        {
+          "date_completed": "2024-09-03",
+          "notes": "Initial entry"
+        }
+      ]
+    },
+    {
       "id": "furnace-filter",
       "name": "Change Furnace Filter ",
       "location": "Basement HVAC",
