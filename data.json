@@ -57,20 +57,6 @@
       ]
     },
     {
-      "id": "furnace-filter",
-      "name": "Change Furnace Filter ",
-      "location": "Basement",
-      "category": "HVAC",
-      "frequency_months": 3,
-      "next_due": "2026-01-15",
-      "history": [
-        {
-          "date_completed": "2025-10-15",
-          "notes": "Used MERV 11"
-        }
-      ]
-    },
-    {
       "id": "smoke-detectors",
       "name": "Check Batteries",
       "location": "Whole House",
