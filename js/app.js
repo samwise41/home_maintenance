@@ -1,22 +1,25 @@
-// Global State
 window.appData = { items: [] };
 window.fileSha = ""; 
 
 // --- TAB NAVIGATION ---
-window.switchTab = function(tabId) {
-    // Hide all contents
+window.switchTab = function(tabId, element) {
+    // Hide all tab contents
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    // Deselect all buttons
+    // Remove active class from all sidebar buttons
     document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
     
-    // Show selected
+    // Show selected tab content
     document.getElementById(tabId).classList.add('active');
-    // Highlight button (find the button that called this based on onclick attribute)
-    event.target.classList.add('active');
+    // Highlight clicked button
+    element.classList.add('active');
 };
 
 // --- MODAL CONTROLLERS ---
 window.closeModal = function(modalId) { document.getElementById(modalId).style.display = "none"; };
+
+window.openSettingsModal = function() {
+    document.getElementById('settingsModal').style.display = "block";
+};
 
 window.openAddModal = function() {
     document.getElementById('itemForm').reset();
@@ -24,6 +27,7 @@ window.openAddModal = function() {
     document.getElementById('modalTitle').innerText = "Add New Task";
     document.getElementById('lastCompletedContainer').style.display = "block"; 
     document.getElementById('itemLastCompleted').value = ""; 
+    document.getElementById('deleteBtn').style.display = "none"; // Hide delete button for new tasks
     document.getElementById('itemModal').style.display = "block";
 };
 
@@ -38,6 +42,7 @@ window.openEditModal = function(id) {
     document.getElementById('itemCategory').value = item.category;
     document.getElementById('itemFrequency').value = item.frequency_months;
     document.getElementById('lastCompletedContainer').style.display = "block";
+    document.getElementById('deleteBtn').style.display = "block"; // Show delete button
     
     if (item.history && item.history.length > 0) {
         document.getElementById('itemLastCompleted').value = item.history[item.history.length - 1].date_completed;
@@ -71,6 +76,24 @@ window.showStatusMsg = function(msg, color="green") {
     setTimeout(() => el.innerText = "", 3000);
 };
 
+// --- DELETE ITEM LOGIC ---
+window.deleteItem = async function() {
+    const id = document.getElementById('itemId').value;
+    if (!id) return;
+    
+    // Safety check pop-up
+    if (!confirm("Are you sure you want to delete this task? This cannot be undone.")) {
+        return; 
+    }
+    
+    // Filter it out of the array
+    window.appData.items = window.appData.items.filter(item => item.id !== id);
+    
+    window.closeModal('itemModal');
+    window.renderAllViews();
+    await window.saveToGitHub();
+};
+
 // --- DATA FETCHING (Github + Local JSONs) ---
 async function fetchDropdowns() {
     try {
@@ -95,7 +118,7 @@ window.saveToGitHub = async function() {
     const token = localStorage.getItem('ghToken');
 
     if (!user || !repo || !token) {
-        window.showStatusMsg("⚠️ Saved to screen, but not to GitHub. Check Settings.", "orange");
+        window.showStatusMsg("⚠️ Saved locally, but not to GitHub. Please check Settings.", "orange");
         return;
     }
 
@@ -122,7 +145,6 @@ window.saveToGitHub = async function() {
 };
 
 async function loadData() {
-    // Populate settings form from memory
     document.getElementById('ghUser').value = localStorage.getItem('ghUser') || '';
     document.getElementById('ghRepo').value = localStorage.getItem('ghRepo') || '';
     document.getElementById('ghToken').value = localStorage.getItem('ghToken') || '';
@@ -147,8 +169,8 @@ async function loadData() {
             window.appData = await response.json();
         }
         
-        // This function lives in dashboard.js
-        if(window.renderDashboard) window.renderDashboard(); 
+        // Render both tabs
+        if(window.renderAllViews) window.renderAllViews(); 
         
     } catch (error) {
         document.getElementById('dashboard-list').innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
@@ -161,6 +183,7 @@ document.getElementById('settingsForm').addEventListener('submit', function(e) {
     localStorage.setItem('ghUser', document.getElementById('ghUser').value.trim());
     localStorage.setItem('ghRepo', document.getElementById('ghRepo').value.trim());
     localStorage.setItem('ghToken', document.getElementById('ghToken').value.trim());
+    window.closeModal('settingsModal');
     window.showStatusMsg("⏳ Loading data...", "blue");
     loadData(); 
 });
@@ -205,7 +228,7 @@ document.getElementById('itemForm').addEventListener('submit', async function(e)
     }
 
     window.closeModal('itemModal');
-    window.renderDashboard();
+    window.renderAllViews();
     await window.saveToGitHub(); 
 });
 
@@ -222,7 +245,7 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
         window.appData.items[itemIndex].next_due = window.calculateNextDue(dateCompleted, window.appData.items[itemIndex].frequency_months);
         
         window.closeModal('logModal');
-        window.renderDashboard();
+        window.renderAllViews();
         await window.saveToGitHub(); 
     }
 });
