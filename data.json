@@ -66,6 +66,15 @@
       "history": []
     },
     {
+      "id": "item-1771056299085",
+      "name": "Replace sacrificial rod",
+      "location": "Basement",
+      "category": "Plumbing",
+      "frequency_months": 60,
+      "next_due": "2026-02-14",
+      "history": []
+    },
+    {
       "id": "smoke-detectors",
       "name": "Check Batteries",
       "location": "Whole House",
