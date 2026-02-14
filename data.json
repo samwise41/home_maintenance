@@ -93,6 +93,15 @@
       "history": []
     },
     {
+      "id": "item-1771111275865",
+      "name": "Wiping down doors",
+      "location": "Whole House",
+      "category": "Other",
+      "frequency_months": 12,
+      "next_due": "2026-02-14",
+      "history": []
+    },
+    {
       "id": "smoke-detectors",
       "name": "Check Batteries",
       "location": "Whole House",
