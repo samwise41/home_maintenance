@@ -75,6 +75,20 @@
       "history": []
     },
     {
+      "id": "item-1771053763829",
+      "name": "Clean Carpets - Basement Family Room ",
+      "location": "Basement Family Room ",
+      "category": "Flooring",
+      "frequency_months": 12,
+      "next_due": "2026-12-12",
+      "history": [
+        {
+          "date_completed": "2025-12-12",
+          "notes": "Initial entry"
+        }
+      ]
+    },
+    {
       "id": "item-1771053564384",
       "name": "Clean Carpets - Master Bedroom and Bathroom ",
       "location": "Master Bedroom ",
