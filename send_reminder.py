@@ -67,21 +67,20 @@ msg['From'] = os.environ.get('EMAIL_SENDER')
 msg['To'] = os.environ.get('EMAIL_RECEIVER')
 msg.attach(MIMEText(html, 'html'))
 
-# Send Email
+# 4. Send Email via SendGrid
 try:
-    # Use Port 587 and TLS, which is Google's preferred method for App Passwords
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.ehlo()
-    server.starttls() # Secure the connection
-    server.login(os.environ.get('EMAIL_SENDER'), os.environ.get('EMAIL_PASSWORD'))
+    print("Connecting to SendGrid...")
+    # SendGrid uses port 587
+    server = smtplib.SMTP('smtp.sendgrid.net', 587)
+    server.starttls()
+    
+    # IMPORTANT: The username is literally the string "apikey", NOT your email address!
+    server.login('apikey', os.environ.get('EMAIL_PASSWORD'))
+    
     server.sendmail(os.environ.get('EMAIL_SENDER'), [msg['To']], msg.as_string())
     server.quit()
-    print("Reminder email sent successfully!")
-except smtplib.SMTPAuthenticationError:
-    print("Authentication failed: Check your EMAIL_SENDER and EMAIL_PASSWORD secrets.")
-    print("Ensure the password has NO spaces and 2FA is enabled on the Google account.")
-    exit(1)
+    print("✅ Reminder email sent successfully via SendGrid!")
 except Exception as e:
-    print(f"Error sending email: {e}")
+    print(f"❌ Error sending email: {e}")
     exit(1)
 
