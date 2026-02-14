@@ -75,6 +75,20 @@
       "history": []
     },
     {
+      "id": "item-1771053811113",
+      "name": "Clean Dishwasher ",
+      "location": "Kitchen ",
+      "category": "Appliance",
+      "frequency_months": 6,
+      "next_due": "2026-08-12",
+      "history": [
+        {
+          "date_completed": "2026-02-13",
+          "notes": "Initial entry"
+        }
+      ]
+    },
+    {
       "id": "item-1771053763829",
       "name": "Clean Carpets - Basement Family Room ",
       "location": "Basement Family Room ",
