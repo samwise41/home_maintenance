@@ -18,10 +18,11 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header-buttons { display: flex; gap: 10px; }
         button { cursor: pointer; border: none; border-radius: 5px; padding: 10px 15px; font-weight: bold; font-size: 1em; }
         .btn-primary { background-color: var(--primary-btn); color: white; }
         .btn-success { background-color: var(--success); color: white; }
-        .btn-outline { background-color: transparent; border: 1px solid #ccc; margin-left: 5px; color: var(--text-main); }
+        .btn-outline { background-color: transparent; border: 1px solid #ccc; color: var(--text-main); }
         
         .item-card { background-color: var(--card-bg); border-radius: 8px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
         .item-info h3 { margin: 0 0 5px 0; }
@@ -42,6 +43,7 @@
         
         @media (max-width: 600px) {
             .header { flex-direction: column; align-items: stretch; gap: 15px; text-align: center; }
+            .header-buttons { flex-direction: column; }
             .item-card { flex-direction: column; align-items: flex-start; gap: 15px; }
             .actions { width: 100%; display: flex; flex-direction: column; gap: 10px; }
             .actions button { width: 100%; margin: 0; padding: 15px; }
@@ -54,9 +56,35 @@
 <div class="container">
     <div class="header">
         <h1>🏠 Home Tracker</h1>
-        <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+        <div class="header-buttons">
+            <button class="btn-outline" onclick="window.openSettingsModal()">⚙️ Settings</button>
+            <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+        </div>
     </div>
+    
+    <div id="status-message" style="margin-bottom: 15px; font-weight: bold;"></div>
+    
     <div id="dashboard-list"><p>Loading your tasks...</p></div>
+</div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="window.closeModal('settingsModal')">&times;</span>
+        <h2>⚙️ GitHub Sync Setup</h2>
+        <p style="font-size: 0.9em; color: var(--text-light);">Store your info here to save changes permanently. This is stored securely in your browser.</p>
+        <form id="settingsForm">
+            <label>GitHub Username:</label>
+            <input type="text" id="ghUser" placeholder="e.g., octocat" required>
+            
+            <label>Repository Name:</label>
+            <input type="text" id="ghRepo" placeholder="e.g., home-tracker" required>
+            
+            <label>Personal Access Token (PAT):</label>
+            <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxx" required>
+            
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Credentials</button>
+        </form>
+    </div>
 </div>
 
 <div id="itemModal" class="modal">
@@ -65,13 +93,10 @@
         <h2 id="modalTitle">Add New Task</h2>
         <form id="itemForm">
             <input type="hidden" id="itemId">
-            
             <label>Task Name:</label>
-            <input type="text" id="itemName" placeholder="e.g., Change Furnace Filter" required>
-            
+            <input type="text" id="itemName" required>
             <label>Location:</label>
-            <input type="text" id="itemLocation" placeholder="e.g., Basement HVAC" required>
-            
+            <input type="text" id="itemLocation" required>
             <label>Category:</label>
             <select id="itemCategory">
                 <option value="HVAC">HVAC</option>
@@ -81,15 +106,12 @@
                 <option value="Exterior">Exterior</option>
                 <option value="Appliance">Appliance</option>
             </select>
-            
             <label>Frequency (Months):</label>
             <input type="number" id="itemFrequency" min="1" required>
-            
             <div id="lastCompletedContainer">
                 <label>Last Completed Date:</label>
                 <input type="date" id="itemLastCompleted">
             </div>
-            
             <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Task</button>
         </form>
     </div>
@@ -102,13 +124,10 @@
         <p id="logItemName" style="color: var(--text-light); font-weight: bold;"></p>
         <form id="logForm">
             <input type="hidden" id="logItemId">
-            
             <label>Date Completed:</label>
             <input type="date" id="logDate" required>
-            
             <label>Notes (Optional):</label>
-            <textarea id="logNotes" placeholder="e.g., Used MERV 11 filter"></textarea>
-            
+            <textarea id="logNotes"></textarea>
             <button type="submit" class="btn-success" style="margin-top: 10px;">Mark Complete</button>
         </form>
     </div>
