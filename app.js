@@ -1,5 +1,5 @@
 let appData = { items: [] };
-let fileSha = ""; // Required by GitHub API to update a file
+let fileSha = ""; 
 
 // --- MODAL CONTROLLERS ---
 
@@ -17,8 +17,9 @@ window.openAddModal = function() {
     document.getElementById('itemId').value = ""; 
     document.getElementById('modalTitle').innerText = "Add New Task";
     document.getElementById('lastCompletedContainer').style.display = "block"; 
-    document.getElementById('itemLastCompleted').value = new Date().toISOString().split('T')[0];
-    document.getElementById('itemLastCompleted').required = true;
+    
+    // Default to blank instead of today
+    document.getElementById('itemLastCompleted').value = ""; 
     document.getElementById('itemModal').style.display = "block";
 };
 
@@ -33,7 +34,6 @@ window.openEditModal = function(id) {
     document.getElementById('itemCategory').value = item.category;
     document.getElementById('itemFrequency').value = item.frequency_months;
     document.getElementById('lastCompletedContainer').style.display = "block";
-    document.getElementById('itemLastCompleted').required = true;
     
     if (item.history && item.history.length > 0) {
         document.getElementById('itemLastCompleted').value = item.history[item.history.length - 1].date_completed;
@@ -168,7 +168,7 @@ function renderDashboard() {
                 <p><strong>Next Due:</strong> ${formattedDate} <span class="badge ${status.class}">${status.text}</span></p>
             </div>
             <div class="actions">
-                <button class="btn-success" onclick="window.openLogModal('${item.id}')">✅ Done</button>
+                <button class="btn-primary" onclick="window.openLogModal('${item.id}')">✅ Log Done</button>
                 <button class="btn-outline" onclick="window.openEditModal('${item.id}')">✏️ Edit</button>
             </div>
         `;
@@ -178,7 +178,6 @@ function renderDashboard() {
 
 // --- FORM SUBMISSIONS ---
 
-// Save Settings
 document.getElementById('settingsForm').addEventListener('submit', function(e) {
     e.preventDefault();
     localStorage.setItem('ghUser', document.getElementById('ghUser').value.trim());
@@ -189,7 +188,6 @@ document.getElementById('settingsForm').addEventListener('submit', function(e) {
     loadData(); 
 });
 
-// Handle Add OR Edit Submission
 document.getElementById('itemForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const idToEdit = document.getElementById('itemId').value;
@@ -206,18 +204,29 @@ document.getElementById('itemForm').addEventListener('submit', async function(e)
             appData.items[index].location = location;
             appData.items[index].category = category;
             appData.items[index].frequency_months = frequency;
-            if (appData.items[index].history && appData.items[index].history.length > 0) {
-                appData.items[index].history[appData.items[index].history.length - 1].date_completed = lastCompletedDate;
+            
+            if (lastCompletedDate) {
+                if (appData.items[index].history && appData.items[index].history.length > 0) {
+                    appData.items[index].history[appData.items[index].history.length - 1].date_completed = lastCompletedDate;
+                } else {
+                    appData.items[index].history = [{ date_completed: lastCompletedDate, notes: "Added via edit" }];
+                }
+                appData.items[index].next_due = calculateNextDue(lastCompletedDate, frequency);
             } else {
-                appData.items[index].history = [{ date_completed: lastCompletedDate, notes: "Added via edit" }];
+                // If they edit and leave it completely blank, set history to empty and due date to today
+                appData.items[index].history = [];
+                appData.items[index].next_due = new Date().toISOString().split('T')[0];
             }
-            appData.items[index].next_due = calculateNextDue(lastCompletedDate, frequency);
         }
     } else {
+        // If left blank on a new item, default the next due date to today
+        const historyArray = lastCompletedDate ? [{ date_completed: lastCompletedDate, notes: "Initial entry" }] : [];
+        const nextDue = lastCompletedDate ? calculateNextDue(lastCompletedDate, frequency) : new Date().toISOString().split('T')[0];
+        
         const newItem = {
             id: 'item-' + Date.now(), name: name, location: location, category: category,
-            frequency_months: frequency, next_due: calculateNextDue(lastCompletedDate, frequency),
-            history: [{ date_completed: lastCompletedDate, notes: "Initial entry" }]
+            frequency_months: frequency, next_due: nextDue,
+            history: historyArray
         };
         appData.items.push(newItem);
     }
@@ -227,7 +236,6 @@ document.getElementById('itemForm').addEventListener('submit', async function(e)
     await saveToGitHub(); 
 });
 
-// Handle Mark Complete Submission
 document.getElementById('logForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const id = document.getElementById('logItemId').value;
@@ -246,5 +254,4 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
     }
 });
 
-// Boot up the app
 loadData();
