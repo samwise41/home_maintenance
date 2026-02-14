@@ -80,6 +80,20 @@
       "history": []
     },
     {
+      "id": "item-1771053936455",
+      "name": "Clean Drains Bioclean",
+      "location": "Whole House",
+      "category": "Plumbing",
+      "frequency_months": 3,
+      "next_due": "2026-05-13",
+      "history": [
+        {
+          "date_completed": "2026-02-14",
+          "notes": "Initial entry"
+        }
+      ]
+    },
+    {
       "id": "carpet-basement",
       "name": "Carpet Cleaning",
       "location": "Basement Family Room",
