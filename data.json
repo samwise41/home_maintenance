@@ -131,6 +131,20 @@
       ]
     },
     {
+      "id": "item-1771055703409",
+      "name": "Seal Tile",
+      "location": "Kitchen",
+      "category": "HVAC",
+      "frequency_months": 12,
+      "next_due": "2026-11-01",
+      "history": [
+        {
+          "date_completed": "2025-11-01",
+          "notes": "Initial entry"
+        }
+      ]
+    },
+    {
       "id": "item-1771053763829",
       "name": "Clean Carpets - Basement Family Room ",
       "location": "Basement Family Room ",
