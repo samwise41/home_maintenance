@@ -113,7 +113,7 @@
 
     <aside class="sidebar" id="sidebar">
         <button class="nav-tab active" onclick="window.switchTab('tab-dashboard', this)">Dashboard</button>
-        <button class="nav-tab" onclick="window.switchTab('tab-timeline', this)">📅 Timeline</button>
+        <button class="nav-tab" onclick="window.switchTab('tab-timeline', this)">📅 By Due Date</button>
         <button class="nav-tab" onclick="window.switchTab('tab-all', this)">All Tasks</button>
         <button class="nav-tab" onclick="window.switchTab('tab-settings', this)">⚙️ Utilities</button>
     </aside>
@@ -131,10 +131,10 @@
         
         <div id="tab-timeline" class="tab-content">
             <div class="header">
-                <h2>Timeline</h2>
+                <h2>By Due Date</h2>
                 <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
             </div>
-            <div id="timeline-list"><p>Loading timeline...</p></div>
+            <div id="timeline-list"><p>Loading tasks...</p></div>
         </div>
 
         <div id="tab-all" class="tab-content">
