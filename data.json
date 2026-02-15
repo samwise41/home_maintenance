@@ -138,6 +138,15 @@
       "history": []
     },
     {
+      "id": "item-1771187108356",
+      "name": "Vacuum Basement Couch ",
+      "location": "Basement",
+      "category": "Other",
+      "frequency_months": 6,
+      "next_due": "2026-02-15",
+      "history": []
+    },
+    {
       "id": "smoke-detectors",
       "name": "Check Batteries",
       "location": "Whole House",
