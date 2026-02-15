@@ -25,13 +25,17 @@
             --success: #28a745;
             --sidebar-bg: #2c3e50;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
         
-        .top-bar { background-color: #1a252f; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .main-layout { display: flex; flex: 1; }
+        .top-bar { background-color: #1a252f; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 101; position: relative; }
+        .main-layout { display: flex; flex: 1; position: relative; }
         
-        .sidebar { width: 220px; background-color: var(--sidebar-bg); padding-top: 20px; display: flex; flex-direction: column; }
-        .nav-tab { background: transparent; border: none; color: #aeb6bf; padding: 15px 20px; text-align: left; font-size: 1.1em; font-weight: bold; cursor: pointer; border-left: 4px solid transparent; }
+        /* Mobile Overlay & Hamburger */
+        .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; }
+        .hamburger { display: none; background: transparent; border: none; color: white; font-size: 1.5em; cursor: pointer; padding: 0 15px 0 0; }
+        
+        .sidebar { width: 220px; background-color: var(--sidebar-bg); padding-top: 20px; display: flex; flex-direction: column; z-index: 100; }
+        .nav-tab { background: transparent; border: none; color: #aeb6bf; padding: 15px 20px; text-align: left; font-size: 1.1em; font-weight: bold; cursor: pointer; border-left: 4px solid transparent; transition: background 0.2s; }
         .nav-tab:hover { color: white; background-color: #34495e; }
         .nav-tab.active { color: white; background-color: #34495e; border-left: 4px solid var(--primary-btn); }
         
@@ -57,7 +61,7 @@
         .status-soon { background-color: var(--warning); color: #333; }
         .status-ok { background-color: var(--success); }
         
-        .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; position: relative; max-height: 85vh; overflow-y: auto;}
         .close { color: #aaa; position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; }
         .close:hover { color: black; }
@@ -70,11 +74,26 @@
         .settings-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .location-list-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; }
         
+        /* Mobile specific styling for Hamburger Menu */
         @media (max-width: 600px) {
+            .hamburger { display: block; }
             .main-layout { flex-direction: column; }
-            .sidebar { width: 100%; flex-direction: row; padding: 0; flex-wrap: wrap; }
-            .nav-tab { flex: 1; text-align: center; border-left: none; border-bottom: 4px solid transparent; padding: 12px 5px; font-size: 0.9em; }
-            .nav-tab.active { border-left: none; border-bottom: 4px solid var(--primary-btn); }
+            
+            .sidebar { 
+                position: fixed; 
+                left: -250px; /* Hidden offscreen initially */
+                top: 0; 
+                width: 250px; 
+                height: 100%; 
+                box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+                transition: left 0.3s ease; 
+                padding-top: 70px; /* Offset for top bar */
+            }
+            .sidebar.open { left: 0; }
+            .mobile-overlay.open { display: block; }
+            
+            .nav-tab { width: 100%; border-left: 4px solid transparent; text-align: left; padding: 15px 20px; font-size: 1.1em; }
+            .nav-tab.active { border-left: 4px solid var(--primary-btn); }
             .header { flex-direction: column; gap: 15px; align-items: stretch; text-align: center;}
             .settings-grid { grid-template-columns: 1fr; }
         }
@@ -83,12 +102,18 @@
 <body>
 
 <div class="top-bar">
-    <div style="font-weight: bold; font-size: 1.2em;">🏠 Home Tracker</div>
+    <div style="display: flex; align-items: center;">
+        <button class="hamburger" onclick="window.toggleMenu()">☰</button>
+        <div style="font-weight: bold; font-size: 1.2em;">🏠 Home Tracker</div>
+    </div>
 </div>
 
 <div class="main-layout">
-    <aside class="sidebar">
+    <div id="mobile-overlay" class="mobile-overlay" onclick="window.toggleMenu()"></div>
+
+    <aside class="sidebar" id="sidebar">
         <button class="nav-tab active" onclick="window.switchTab('tab-dashboard', this)">Dashboard</button>
+        <button class="nav-tab" onclick="window.switchTab('tab-timeline', this)">📅 Timeline</button>
         <button class="nav-tab" onclick="window.switchTab('tab-all', this)">All Tasks</button>
         <button class="nav-tab" onclick="window.switchTab('tab-settings', this)">⚙️ Utilities</button>
     </aside>
@@ -102,6 +127,14 @@
                 <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
             </div>
             <div id="dashboard-list"><p>Loading your tasks...</p></div>
+        </div>
+        
+        <div id="tab-timeline" class="tab-content">
+            <div class="header">
+                <h2>Timeline</h2>
+                <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+            </div>
+            <div id="timeline-list"><p>Loading timeline...</p></div>
         </div>
 
         <div id="tab-all" class="tab-content">
@@ -137,9 +170,7 @@
                         <input type="text" id="newLocationInput" placeholder="Add location..." style="flex: 1;">
                         <button class="btn-primary btn-sm" onclick="window.addNewLocation()">Add</button>
                     </div>
-                    <div id="locations-manager-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 5px;">
-                        <p style="text-align:center; color:#999;">Loading...</p>
-                    </div>
+                    <div id="locations-manager-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 5px;"></div>
                 </div>
 
                 <div class="settings-card">
@@ -149,9 +180,7 @@
                         <input type="text" id="newCategoryInput" placeholder="Add category..." style="flex: 1;">
                         <button class="btn-primary btn-sm" onclick="window.addNewCategory()">Add</button>
                     </div>
-                    <div id="categories-manager-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 5px;">
-                        <p style="text-align:center; color:#999;">Loading...</p>
-                    </div>
+                    <div id="categories-manager-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 5px;"></div>
                 </div>
             </div>
         </div>
@@ -208,6 +237,7 @@
     var cacheBuster = '?v=' + new Date().getTime();
     document.write('<script src="js/app.js' + cacheBuster + '"><\/script>');
     document.write('<script src="js/tab-dashboard.js' + cacheBuster + '"><\/script>');
+    document.write('<script src="js/tab-timeline.js' + cacheBuster + '"><\/script>');
     document.write('<script src="js/tab-tasks.js' + cacheBuster + '"><\/script>');
     document.write('<script src="js/tab-settings.js' + cacheBuster + '"><\/script>');
 </script>
