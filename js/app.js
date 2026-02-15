@@ -11,7 +11,7 @@ window.appCategories = [];
 window.categoryFileSha = "";
 
 // ==========================================
-// 2. TAB NAVIGATION & MOBILE MENU
+// 2. TAB NAVIGATION (Hash-Enabled) & MOBILE MENU
 // ==========================================
 window.toggleMenu = function() {
     document.getElementById('sidebar').classList.toggle('open');
@@ -24,8 +24,23 @@ window.switchTab = function(tabId, element) {
     document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
     
     // Show selected
-    document.getElementById(tabId).classList.add('active');
-    element.classList.add('active');
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) targetTab.classList.add('active');
+    
+    // Highlight button (Find it manually if triggered by hash/back button)
+    if (element) {
+        element.classList.add('active');
+    } else {
+        const btn = document.querySelector(`.nav-tab[onclick*="${tabId}"]`);
+        if (btn) btn.classList.add('active');
+    }
+    
+    // Smoothly update the URL hash without jumping the page
+    const hashMap = { 'tab-dashboard': 'dashboard', 'tab-timeline': 'timeline', 'tab-all': 'all', 'tab-settings': 'settings' };
+    const newHash = `#${hashMap[tabId]}`;
+    if (window.location.hash !== newHash) {
+        history.pushState(null, null, newHash);
+    }
     
     // Automatically close the mobile menu after making a selection
     const sidebar = document.getElementById('sidebar');
@@ -33,6 +48,15 @@ window.switchTab = function(tabId, element) {
         window.toggleMenu();
     }
 };
+
+// Listen for Back/Forward browser navigation
+window.addEventListener('popstate', () => {
+    const hash = window.location.hash.replace('#', '') || 'dashboard';
+    const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'all': 'tab-all', 'settings': 'tab-settings' };
+    if (reverseMap[hash]) {
+        window.switchTab(reverseMap[hash]);
+    }
+});
 
 // ==========================================
 // 3. MODAL CONTROLLERS
@@ -416,4 +440,14 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
     }
 });
 
+// Boot up the application
 loadInitialData();
+
+// Check for Initial Hash on Page Load
+setTimeout(() => {
+    const initialHash = window.location.hash.replace('#', '') || 'dashboard';
+    const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'all': 'tab-all', 'settings': 'tab-settings' };
+    if (reverseMap[initialHash]) {
+        window.switchTab(reverseMap[initialHash]);
+    }
+}, 50);
