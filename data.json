@@ -120,6 +120,15 @@
       "history": []
     },
     {
+      "id": "item-1771186769428",
+      "name": "Clean Carpets - Loft",
+      "location": "Upstairs",
+      "category": "Flooring",
+      "frequency_months": 12,
+      "next_due": "2026-02-15",
+      "history": []
+    },
+    {
       "id": "smoke-detectors",
       "name": "Check Batteries",
       "location": "Whole House",
