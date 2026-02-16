@@ -57,6 +57,7 @@ window.renderTimeline = function() {
             const formattedDate = window.formatDate(item.next_due);
             const status = window.getStatus(item.next_due);
             const displayLocation = item.location ? item.location : "Location not specified";
+            const displayCategory = item.category ? item.category : "Other";
             
             // Determine dynamic border color
             let borderColor = 'var(--primary-btn)'; // Default to blue (Future)
@@ -72,7 +73,7 @@ window.renderTimeline = function() {
                             <div id="chevron-${item.id}" style="transition: transform 0.3s; font-size: 0.8em; color: var(--text-light);">▼</div>
                             <div>
                                 <div style="font-weight: bold; color: var(--text-main);">${item.name}</div>
-                                <div style="font-size: 0.85em; color: var(--text-light); margin-top: 2px;">📍 ${displayLocation}</div>
+                                <div style="font-size: 0.85em; color: var(--text-light); margin-top: 2px;">📍 ${displayLocation} - ${displayCategory}</div>
                             </div>
                         </div>
                         <div style="text-align: right;">
@@ -81,7 +82,7 @@ window.renderTimeline = function() {
                     </div>
                     
                     <div id="details-${item.id}" style="display: none; padding: 15px; border-top: 1px solid #eee; background-color: #fafafa;">
-                        <p style="margin: 0 0 10px 0; font-size: 0.9em; color: var(--text-light);">⏱️ Every ${item.frequency_months} months | 📁 ${item.category || 'Other'}</p>
+                        <p style="margin: 0 0 10px 0; font-size: 0.9em; color: var(--text-light);">⏱️ Every ${item.frequency_months} months</p>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span class="badge ${status.class}">${status.text}</span>
