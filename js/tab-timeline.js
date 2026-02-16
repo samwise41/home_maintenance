@@ -58,9 +58,14 @@ window.renderTimeline = function() {
             const status = window.getStatus(item.next_due);
             const displayLocation = item.location ? item.location : "Location not specified";
             
+            // Determine dynamic border color
+            let borderColor = 'var(--primary-btn)'; // Default to blue (Future)
+            if (status.class === 'status-overdue') borderColor = 'var(--danger)'; // Red (Overdue)
+            if (status.class === 'status-soon') borderColor = 'var(--warning)'; // Yellow (Due Soon)
+            
             // Render a clean, compact list row that expands on click
             html += `
-                <div style="background: white; border-radius: 6px; border-left: 4px solid var(--primary-btn); box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">
+                <div style="background: white; border-radius: 6px; border-left: 6px solid ${borderColor}; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">
                     
                     <div onclick="window.toggleTimelineCard('${item.id}')" style="padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -76,7 +81,7 @@ window.renderTimeline = function() {
                     </div>
                     
                     <div id="details-${item.id}" style="display: none; padding: 15px; border-top: 1px solid #eee; background-color: #fafafa;">
-                        <p style="margin: 0 0 10px 0; font-size: 0.9em; color: var(--text-light);">⏱️ Every ${item.frequency_months} months</p>
+                        <p style="margin: 0 0 10px 0; font-size: 0.9em; color: var(--text-light);">⏱️ Every ${item.frequency_months} months | 📁 ${item.category || 'Other'}</p>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span class="badge ${status.class}">${status.text}</span>
