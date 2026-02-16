@@ -1,5 +1,39 @@
-// Holds our chart objects so we can destroy them before re-drawing to prevent visual glitches
 window.chartInstances = {};
+
+window.initDashboard = function() {
+    document.getElementById('tab-dashboard').innerHTML = `
+        <div class="header" style="border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            <h2>📊 Dashboard Analytics</h2>
+            <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>House Health</h3>
+                <div class="chart-container"><canvas id="chartHealth"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Workload by Category</h3>
+                <div class="chart-container"><canvas id="chartCategory"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Overdue by Category</h3>
+                <div class="chart-container"><canvas id="chartOverdueCategory"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Maintenance Forecast (6 Mo)</h3>
+                <div class="chart-container"><canvas id="chartForecast"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Completed Tasks (Past 6 Mo)</h3>
+                <div class="chart-container"><canvas id="chartCompleted"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3>Expenses (Past 6 Mo)</h3>
+                <div class="chart-container"><canvas id="chartExpenses"></canvas></div>
+            </div>
+        </div>
+    `;
+};
 
 window.renderDashboard = function() {
     renderAnalytics();
@@ -21,10 +55,9 @@ function renderAnalytics() {
         labels: ['Overdue', 'Due Soon', 'Good Standing'],
         datasets: [{
             data: [overdue, soon, ok],
-            backgroundColor: ['#dc3545', '#ffc107', '#28a745'] // Red, Yellow, Green
+            backgroundColor: ['#dc3545', '#ffc107', '#28a745']
         }]
     });
-
 
     // --- CHART 2: Workload by Category (Pie) ---
     const catCounts = {};
@@ -43,8 +76,7 @@ function renderAnalytics() {
         }]
     });
 
-
-    // --- CHART 3: NEW Overdue by Category (Bar) ---
+    // --- CHART 3: Overdue by Category (Bar) ---
     const overdueCatCounts = {};
     items.forEach(i => {
         if (window.getStatus(i.next_due).class === 'status-overdue') {
@@ -61,10 +93,9 @@ function renderAnalytics() {
         datasets: [{
             label: 'Overdue Tasks',
             data: overdueData,
-            backgroundColor: '#dc3545' // Red to indicate urgency
+            backgroundColor: '#dc3545'
         }]
     }, { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } });
-
 
     // --- DATA HELPER: Generate Month Labels ---
     const getMonthKey = (date) => {
@@ -79,7 +110,6 @@ function renderAnalytics() {
         return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
     };
 
-    // Generate keys for the Past 6 Months and Next 6 Months
     const past6Keys = [];
     for(let i=5; i>=0; i--) {
         const d = new Date();
@@ -93,7 +123,6 @@ function renderAnalytics() {
         d.setMonth(d.getMonth() + i);
         next6Keys.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}`);
     }
-
 
     // --- CHART 4: Maintenance Forecast (Bar) ---
     const forecastCounts = {};
@@ -112,13 +141,11 @@ function renderAnalytics() {
         }]
     }, { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } });
 
-
     // --- CHART 5 & 6: Completed Tasks & Expenses ---
     const completedCounts = {};
     const expenses = {};
     past6Keys.forEach(k => { completedCounts[k] = 0; expenses[k] = 0; });
 
-    // Look at the history of every item to sum up past behavior
     items.forEach(i => {
         if(i.history) {
             i.history.forEach(h => {
@@ -147,15 +174,14 @@ function renderAnalytics() {
         datasets: [{
             label: 'Money Spent ($)',
             data: past6Keys.map(k => expenses[k]),
-            backgroundColor: '#20c997' // Changed to a nice teal/green so red is reserved for overdue
+            backgroundColor: '#20c997' 
         }]
     });
 }
 
-// Global Reusable function to draw a Chart.js Canvas
 function renderChart(id, type, data, options = {}) {
     if(window.chartInstances[id]) {
-        window.chartInstances[id].destroy(); // Destroy old chart instance to prevent errors
+        window.chartInstances[id].destroy(); 
     }
     const ctx = document.getElementById(id);
     if(!ctx) return;
