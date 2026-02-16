@@ -308,6 +308,20 @@
       ]
     },
     {
+      "id": "item-1771053763829",
+      "name": "Clean Carpets - Basement Family Room ",
+      "location": "Basement Family Room ",
+      "category": "Flooring",
+      "frequency_months": 6,
+      "next_due": "2026-06-11",
+      "history": [
+        {
+          "date_completed": "2025-12-12",
+          "notes": "Initial entry"
+        }
+      ]
+    },
+    {
       "id": "item-1771053811113",
       "name": "Clean Dishwasher ",
       "location": "Kitchen",
@@ -359,20 +373,6 @@
       "history": [
         {
           "date_completed": "2025-11-01",
-          "notes": "Initial entry"
-        }
-      ]
-    },
-    {
-      "id": "item-1771053763829",
-      "name": "Clean Carpets - Basement Family Room ",
-      "location": "Basement Family Room ",
-      "category": "Flooring",
-      "frequency_months": 12,
-      "next_due": "2026-12-12",
-      "history": [
-        {
-          "date_completed": "2025-12-12",
           "notes": "Initial entry"
         }
       ]
