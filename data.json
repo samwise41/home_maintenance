@@ -276,6 +276,15 @@
       "history": []
     },
     {
+      "id": "item-1771268393219",
+      "name": "Grease Garage Door",
+      "location": "Garage",
+      "category": "Other",
+      "frequency_months": 6,
+      "next_due": "2026-02-16",
+      "history": []
+    },
+    {
       "id": "item-1771053936455",
       "name": "Clean Drains Bioclean",
       "location": "Whole House",
