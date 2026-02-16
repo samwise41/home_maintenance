@@ -422,22 +422,28 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
 });
 
 // ==========================================
-// 9. APP INITIALIZATION
+// 9. APP INITIALIZATION (THE FIX)
 // ==========================================
-// Allow each JS file to inject its own HTML layout into the empty shell
-if (window.initDashboard) window.initDashboard();
-if (window.initTimeline) window.initTimeline();
-if (window.initAllTasks) window.initAllTasks();
-if (window.initSettings) window.initSettings();
+// Wrap the boot sequence in a 'load' listener so it waits for all 
+// the tab-*.js files to finish downloading before executing.
+window.addEventListener('load', function() {
+    
+    // Inject HTML layouts into the empty shells
+    if (window.initDashboard) window.initDashboard();
+    if (window.initTimeline) window.initTimeline();
+    if (window.initAllTasks) window.initAllTasks();
+    if (window.initSettings) window.initSettings();
 
-// Load the JSON data
-window.loadInitialData();
+    // Load the JSON data
+    window.loadInitialData();
 
-// Hash router
-setTimeout(() => {
-    const initialHash = window.location.hash.replace('#', '') || 'dashboard';
-    const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'all': 'tab-all', 'settings': 'tab-settings' };
-    if (reverseMap[initialHash]) {
-        window.switchTab(reverseMap[initialHash]);
-    }
-}, 50);
+    // Setup the Hash router
+    setTimeout(() => {
+        const initialHash = window.location.hash.replace('#', '') || 'dashboard';
+        const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'all': 'tab-all', 'settings': 'tab-settings' };
+        if (reverseMap[initialHash]) {
+            window.switchTab(reverseMap[initialHash]);
+        }
+    }, 50);
+
+});
