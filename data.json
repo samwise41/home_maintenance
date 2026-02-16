@@ -43,6 +43,21 @@
       ]
     },
     {
+      "id": "item-1771258123205",
+      "name": "Flush Sprinklers",
+      "location": "Exterior",
+      "category": "Yard",
+      "frequency_months": 12,
+      "next_due": "2025-10-01",
+      "history": [
+        {
+          "date_completed": "2024-10-01",
+          "notes": "Initial entry",
+          "cost": 0
+        }
+      ]
+    },
+    {
       "id": "item-1771053843898",
       "name": "Clean Fridge ",
       "location": "Kitchen",
