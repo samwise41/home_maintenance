@@ -11,7 +11,7 @@ window.appCategories = [];
 window.categoryFileSha = "";
 
 // ==========================================
-// 2. TAB NAVIGATION (Hash-Enabled) & MOBILE MENU
+// 2. TAB NAVIGATION & MOBILE MENU
 // ==========================================
 window.toggleMenu = function() {
     document.getElementById('sidebar').classList.toggle('open');
@@ -32,7 +32,7 @@ window.switchTab = function(tabId, element) {
         if (btn) btn.classList.add('active');
     }
     
-    const hashMap = { 'tab-dashboard': 'dashboard', 'tab-timeline': 'timeline', 'tab-all': 'all', 'tab-settings': 'settings' };
+    const hashMap = { 'tab-dashboard': 'dashboard', 'tab-timeline': 'timeline', 'tab-category': 'category', 'tab-all': 'all', 'tab-settings': 'settings' };
     const newHash = `#${hashMap[tabId]}`;
     if (window.location.hash !== newHash) {
         history.pushState(null, null, newHash);
@@ -46,7 +46,7 @@ window.switchTab = function(tabId, element) {
 
 window.addEventListener('popstate', () => {
     const hash = window.location.hash.replace('#', '') || 'dashboard';
-    const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'all': 'tab-all', 'settings': 'tab-settings' };
+    const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'all': 'tab-all', 'settings': 'tab-settings' };
     if (reverseMap[hash]) {
         window.switchTab(reverseMap[hash]);
     }
@@ -348,6 +348,7 @@ window.loadInitialData = async function() {
 window.renderAllViews = function() {
     if(window.renderDashboard) window.renderDashboard();
     if(window.renderTimeline) window.renderTimeline();
+    if(window.renderCategory) window.renderCategory();
     if(window.renderAllTasks) window.renderAllTasks();
     if(window.renderSettings) window.renderSettings();
 };
@@ -422,25 +423,21 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
 });
 
 // ==========================================
-// 9. APP INITIALIZATION (THE FIX)
+// 9. APP INITIALIZATION
 // ==========================================
-// Wrap the boot sequence in a 'load' listener so it waits for all 
-// the tab-*.js files to finish downloading before executing.
 window.addEventListener('load', function() {
     
-    // Inject HTML layouts into the empty shells
     if (window.initDashboard) window.initDashboard();
     if (window.initTimeline) window.initTimeline();
+    if (window.initCategory) window.initCategory();
     if (window.initAllTasks) window.initAllTasks();
     if (window.initSettings) window.initSettings();
 
-    // Load the JSON data
     window.loadInitialData();
 
-    // Setup the Hash router
     setTimeout(() => {
         const initialHash = window.location.hash.replace('#', '') || 'dashboard';
-        const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'all': 'tab-all', 'settings': 'tab-settings' };
+        const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'all': 'tab-all', 'settings': 'tab-settings' };
         if (reverseMap[initialHash]) {
             window.switchTab(reverseMap[initialHash]);
         }
