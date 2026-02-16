@@ -1,5 +1,16 @@
+window.initAllTasks = function() {
+    document.getElementById('tab-all').innerHTML = `
+        <div class="header">
+            <h2>All Maintenance Tasks</h2>
+            <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+        </div>
+        <div id="all-tasks-list"><p>Loading your tasks...</p></div>
+    `;
+};
+
 window.renderAllTasks = function() {
     const allList = document.getElementById('all-tasks-list');
+    if (!allList) return;
     allList.innerHTML = ''; 
 
     window.appData.items.sort((a, b) => new Date(a.next_due) - new Date(b.next_due));
