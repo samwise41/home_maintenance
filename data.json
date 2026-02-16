@@ -177,6 +177,15 @@
       "history": []
     },
     {
+      "id": "item-1771263477367",
+      "name": "Clean Baseboard - Upstairs",
+      "location": "Upstairs",
+      "category": "Other",
+      "frequency_months": 6,
+      "next_due": "2026-02-16",
+      "history": []
+    },
+    {
       "id": "smoke-detectors",
       "name": "Check Batteries",
       "location": "Whole House",
