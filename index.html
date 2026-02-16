@@ -13,6 +13,8 @@
     <meta name="theme-color" content="#1a252f">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1946/1946488.png">
     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         :root {
             --bg-color: #f4f4f9;
@@ -30,7 +32,6 @@
         .top-bar { background-color: #1a252f; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 101; position: relative; }
         .main-layout { display: flex; flex: 1; position: relative; }
         
-        /* Mobile Overlay & Hamburger */
         .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; }
         .hamburger { display: none; background: transparent; border: none; color: white; font-size: 1.5em; cursor: pointer; padding: 0 15px 0 0; }
         
@@ -74,28 +75,22 @@
         .settings-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .location-list-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; }
         
-        /* Mobile specific styling for Hamburger Menu */
+        /* Dashboard Chart Grid */
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 15px; }
+        .chart-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: 300px; display: flex; flex-direction: column; }
+        .chart-card h3 { margin-top: 0; text-align: center; color: var(--text-main); font-size: 1.1em; margin-bottom: 10px; }
+        .chart-container { position: relative; flex: 1; min-height: 0; }
+
         @media (max-width: 600px) {
             .hamburger { display: block; }
             .main-layout { flex-direction: column; }
-            
-            .sidebar { 
-                position: fixed; 
-                left: -250px; /* Hidden offscreen initially */
-                top: 0; 
-                width: 250px; 
-                height: 100%; 
-                box-shadow: 2px 0 10px rgba(0,0,0,0.3);
-                transition: left 0.3s ease; 
-                padding-top: 70px; /* Offset for top bar */
-            }
+            .sidebar { position: fixed; left: -250px; top: 0; width: 250px; height: 100%; box-shadow: 2px 0 10px rgba(0,0,0,0.3); transition: left 0.3s ease; padding-top: 70px; }
             .sidebar.open { left: 0; }
             .mobile-overlay.open { display: block; }
-            
             .nav-tab { width: 100%; border-left: 4px solid transparent; text-align: left; padding: 15px 20px; font-size: 1.1em; }
             .nav-tab.active { border-left: 4px solid var(--primary-btn); }
             .header { flex-direction: column; gap: 15px; align-items: stretch; text-align: center;}
-            .settings-grid { grid-template-columns: 1fr; }
+            .settings-grid, .chart-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -127,6 +122,33 @@
                 <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
             </div>
             <div id="dashboard-list"><p>Loading your tasks...</p></div>
+            
+            <div class="header" style="margin-top: 40px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+                <h2>📊 Analytics</h2>
+            </div>
+            
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3>House Health</h3>
+                    <div class="chart-container"><canvas id="chartHealth"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3>Workload by Category</h3>
+                    <div class="chart-container"><canvas id="chartCategory"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3>Maintenance Forecast (6 Mo)</h3>
+                    <div class="chart-container"><canvas id="chartForecast"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3>Completed Tasks (Past 6 Mo)</h3>
+                    <div class="chart-container"><canvas id="chartCompleted"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <h3>Expenses (Past 6 Mo)</h3>
+                    <div class="chart-container"><canvas id="chartExpenses"></canvas></div>
+                </div>
+            </div>
         </div>
         
         <div id="tab-timeline" class="tab-content">
@@ -147,7 +169,6 @@
         
         <div id="tab-settings" class="tab-content">
             <div class="header"><h2>Settings & Utilities</h2></div>
-            
             <div class="settings-grid">
                 <div class="settings-card">
                     <h3 style="margin-top: 0;">GitHub Sync</h3>
@@ -162,7 +183,6 @@
                         <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Credentials</button>
                     </form>
                 </div>
-                
                 <div class="settings-card">
                     <h3 style="margin-top: 0;">Manage Locations</h3>
                     <p style="color: var(--text-light); font-size: 0.9em;">Modify the location options for your tasks.</p>
@@ -172,7 +192,6 @@
                     </div>
                     <div id="locations-manager-list" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 4px; padding: 5px;"></div>
                 </div>
-
                 <div class="settings-card">
                     <h3 style="margin-top: 0;">Manage Categories</h3>
                     <p style="color: var(--text-light); font-size: 0.9em;">Modify the category options for your tasks.</p>
@@ -226,6 +245,8 @@
             <input type="hidden" id="logItemId">
             <label>Date Completed:</label>
             <input type="date" id="logDate" required>
+            <label>Cost ($):</label>
+            <input type="number" step="0.01" id="logCost" placeholder="0.00">
             <label>Notes (Optional):</label>
             <textarea id="logNotes"></textarea>
             <button type="submit" class="btn-primary" style="margin-top: 10px;">Mark Complete</button>
