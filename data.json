@@ -285,6 +285,15 @@
       "history": []
     },
     {
+      "id": "carpet-basement",
+      "name": "Carpet Cleaning",
+      "location": "Basement Family Room",
+      "category": "Flooring",
+      "frequency_months": 6,
+      "next_due": "2026-02-16",
+      "history": []
+    },
+    {
       "id": "item-1771053936455",
       "name": "Clean Drains Bioclean",
       "location": "Whole House",
@@ -297,15 +306,6 @@
           "notes": "Initial entry"
         }
       ]
-    },
-    {
-      "id": "carpet-basement",
-      "name": "Carpet Cleaning",
-      "location": "Basement Family Room",
-      "category": "Flooring",
-      "frequency_months": 12,
-      "next_due": "2026-08-01",
-      "history": []
     },
     {
       "id": "item-1771053811113",
