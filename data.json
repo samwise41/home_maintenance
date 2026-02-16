@@ -231,15 +231,6 @@
       "history": []
     },
     {
-      "id": "item-1771268238899",
-      "name": "Vacuum Coils on Fridge",
-      "location": "Kitchen",
-      "category": "Appliance",
-      "frequency_months": 12,
-      "next_due": "2026-02-16",
-      "history": []
-    },
-    {
       "id": "item-1771268280643",
       "name": "Clean Washing Machine Gasket",
       "location": "Laundry Room",
