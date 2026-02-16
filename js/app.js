@@ -19,15 +19,12 @@ window.toggleMenu = function() {
 };
 
 window.switchTab = function(tabId, element) {
-    // Hide all contents and deselect tabs
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
     
-    // Show selected
     const targetTab = document.getElementById(tabId);
     if (targetTab) targetTab.classList.add('active');
     
-    // Highlight button (Find it manually if triggered by hash/back button)
     if (element) {
         element.classList.add('active');
     } else {
@@ -35,21 +32,18 @@ window.switchTab = function(tabId, element) {
         if (btn) btn.classList.add('active');
     }
     
-    // Smoothly update the URL hash without jumping the page
     const hashMap = { 'tab-dashboard': 'dashboard', 'tab-timeline': 'timeline', 'tab-all': 'all', 'tab-settings': 'settings' };
     const newHash = `#${hashMap[tabId]}`;
     if (window.location.hash !== newHash) {
         history.pushState(null, null, newHash);
     }
     
-    // Automatically close the mobile menu after making a selection
     const sidebar = document.getElementById('sidebar');
     if (sidebar && sidebar.classList.contains('open')) {
         window.toggleMenu();
     }
 };
 
-// Listen for Back/Forward browser navigation
 window.addEventListener('popstate', () => {
     const hash = window.location.hash.replace('#', '') || 'dashboard';
     const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'all': 'tab-all', 'settings': 'tab-settings' };
@@ -91,7 +85,6 @@ window.openEditModal = function(id) {
     document.getElementById('lastCompletedContainer').style.display = "block";
     document.getElementById('deleteBtn').style.display = "block"; 
     
-    // Set up Location Dropdown (with Legacy check)
     window.populateLocationDropdown(); 
     const locSelect = document.getElementById('itemLocation');
     if (item.location && !window.appLocations.includes(item.location)) {
@@ -102,7 +95,6 @@ window.openEditModal = function(id) {
     }
     locSelect.value = item.location || "";
 
-    // Set up Category Dropdown (with Legacy check)
     window.populateCategoryDropdown();
     const catSelect = document.getElementById('itemCategory');
     if (item.category && !window.appCategories.includes(item.category)) {
@@ -128,6 +120,7 @@ window.openLogModal = function(id) {
     document.getElementById('logItemId').value = item.id;
     document.getElementById('logItemName').innerText = `Task: ${item.name} (${item.location || 'Unknown'})`;
     document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('logCost').value = ""; // Reset cost field
     document.getElementById('logModal').style.display = "block";
 };
 
@@ -399,7 +392,7 @@ document.getElementById('itemForm').addEventListener('submit', async function(e)
                 if (window.appData.items[index].history && window.appData.items[index].history.length > 0) {
                     window.appData.items[index].history[window.appData.items[index].history.length - 1].date_completed = lastCompletedDate;
                 } else {
-                    window.appData.items[index].history = [{ date_completed: lastCompletedDate, notes: "Added via edit" }];
+                    window.appData.items[index].history = [{ date_completed: lastCompletedDate, notes: "Added via edit", cost: 0 }];
                 }
                 window.appData.items[index].next_due = window.calculateNextDue(lastCompletedDate, frequency);
             } else {
@@ -408,7 +401,7 @@ document.getElementById('itemForm').addEventListener('submit', async function(e)
             }
         }
     } else {
-        const historyArray = lastCompletedDate ? [{ date_completed: lastCompletedDate, notes: "Initial entry" }] : [];
+        const historyArray = lastCompletedDate ? [{ date_completed: lastCompletedDate, notes: "Initial entry", cost: 0 }] : [];
         const nextDue = lastCompletedDate ? window.calculateNextDue(lastCompletedDate, frequency) : new Date().toISOString().split('T')[0];
         const newItem = {
             id: 'item-' + Date.now(), name: name, location: location, category: category,
@@ -426,11 +419,15 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
     e.preventDefault();
     const id = document.getElementById('logItemId').value;
     const dateCompleted = document.getElementById('logDate').value;
+    const cost = parseFloat(document.getElementById('logCost').value) || 0; // Grabbing the new cost value
+    
     const itemIndex = window.appData.items.findIndex(i => i.id === id);
     
     if (itemIndex > -1) {
         window.appData.items[itemIndex].history.push({
-            date_completed: dateCompleted, notes: document.getElementById('logNotes').value
+            date_completed: dateCompleted, 
+            notes: document.getElementById('logNotes').value,
+            cost: cost // Saving it to history
         });
         window.appData.items[itemIndex].next_due = window.calculateNextDue(dateCompleted, window.appData.items[itemIndex].frequency_months);
         
@@ -440,10 +437,8 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
     }
 });
 
-// Boot up the application
 loadInitialData();
 
-// Check for Initial Hash on Page Load
 setTimeout(() => {
     const initialHash = window.location.hash.replace('#', '') || 'dashboard';
     const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'all': 'tab-all', 'settings': 'tab-settings' };
