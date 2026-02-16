@@ -196,11 +196,11 @@
     },
     {
       "id": "smoke-detectors",
-      "name": "Check Batteries",
+      "name": "Check Smoke Detector Batteries",
       "location": "Whole House",
       "category": "Safety",
       "frequency_months": 6,
-      "next_due": "2026-02-28",
+      "next_due": "2026-02-16",
       "history": []
     },
     {
