@@ -2,7 +2,6 @@
 window.chartInstances = {};
 
 window.renderDashboard = function() {
-    // Just render the analytics charts directly!
     renderAnalytics();
 };
 
@@ -45,6 +44,28 @@ function renderAnalytics() {
     });
 
 
+    // --- CHART 3: NEW Overdue by Category (Bar) ---
+    const overdueCatCounts = {};
+    items.forEach(i => {
+        if (window.getStatus(i.next_due).class === 'status-overdue') {
+            const c = i.category || 'Other';
+            overdueCatCounts[c] = (overdueCatCounts[c] || 0) + 1;
+        }
+    });
+
+    const overdueLabels = Object.keys(overdueCatCounts).length > 0 ? Object.keys(overdueCatCounts) : ['No Overdue Tasks'];
+    const overdueData = Object.keys(overdueCatCounts).length > 0 ? Object.values(overdueCatCounts) : [0];
+
+    renderChart('chartOverdueCategory', 'bar', {
+        labels: overdueLabels,
+        datasets: [{
+            label: 'Overdue Tasks',
+            data: overdueData,
+            backgroundColor: '#dc3545' // Red to indicate urgency
+        }]
+    }, { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } });
+
+
     // --- DATA HELPER: Generate Month Labels ---
     const getMonthKey = (date) => {
         const d = new Date(date);
@@ -74,7 +95,7 @@ function renderAnalytics() {
     }
 
 
-    // --- CHART 3: Maintenance Forecast (Bar) ---
+    // --- CHART 4: Maintenance Forecast (Bar) ---
     const forecastCounts = {};
     next6Keys.forEach(k => forecastCounts[k] = 0);
     items.forEach(i => {
@@ -89,10 +110,10 @@ function renderAnalytics() {
             data: next6Keys.map(k => forecastCounts[k]),
             backgroundColor: '#007bff'
         }]
-    });
+    }, { scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } });
 
 
-    // --- CHART 4 & 5: Completed Tasks & Expenses ---
+    // --- CHART 5 & 6: Completed Tasks & Expenses ---
     const completedCounts = {};
     const expenses = {};
     past6Keys.forEach(k => { completedCounts[k] = 0; expenses[k] = 0; });
@@ -126,7 +147,7 @@ function renderAnalytics() {
         datasets: [{
             label: 'Money Spent ($)',
             data: past6Keys.map(k => expenses[k]),
-            backgroundColor: '#dc3545'
+            backgroundColor: '#20c997' // Changed to a nice teal/green so red is reserved for overdue
         }]
     });
 }
