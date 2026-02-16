@@ -285,6 +285,15 @@
       "history": []
     },
     {
+      "id": "item-1771268441636",
+      "name": "Flush Water Heater",
+      "location": "Basement",
+      "category": "Plumbing",
+      "frequency_months": 12,
+      "next_due": "2026-02-16",
+      "history": []
+    },
+    {
       "id": "item-1771053936455",
       "name": "Clean Drains Bioclean",
       "location": "Whole House",
