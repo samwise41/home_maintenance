@@ -123,7 +123,14 @@ html += f"""
 msg = MIMEMultipart("related")
 msg['Subject'] = "🏠 Home Maintenance Due"
 msg['From'] = os.environ.get('EMAIL_SENDER')
-msg['To'] = os.environ.get('EMAIL_RECEIVER')
+
+# --- NEW: Parse Multiple Emails ---
+# Grab the secret and split it into a list based on commas
+receivers_str = os.environ.get('EMAIL_RECEIVER', '')
+receiver_list = [email.strip() for email in receivers_str.split(',') if email.strip()]
+
+# Join them back together with a comma for the "To:" display line in the email
+msg['To'] = ", ".join(receiver_list)
 
 msg_alternative = MIMEMultipart('alternative')
 msg.attach(msg_alternative)
@@ -152,9 +159,11 @@ try:
     server = smtplib.SMTP('smtp.sendgrid.net', 587)
     server.starttls()
     server.login('apikey', os.environ.get('EMAIL_PASSWORD'))
-    server.sendmail(os.environ.get('EMAIL_SENDER'), [msg['To']], msg.as_string())
+    
+    # NEW: Pass the actual Python list of emails (receiver_list) here!
+    server.sendmail(os.environ.get('EMAIL_SENDER'), receiver_list, msg.as_string())
     server.quit()
-    print("✅ Reminder email with charts sent successfully via SendGrid!")
+    print(f"✅ Reminder email with charts sent successfully to {len(receiver_list)} recipients via SendGrid!")
 except Exception as e:
     print(f"❌ Error sending email: {e}")
     exit(1)
