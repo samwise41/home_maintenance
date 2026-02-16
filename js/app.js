@@ -120,7 +120,7 @@ window.openLogModal = function(id) {
     document.getElementById('logItemId').value = item.id;
     document.getElementById('logItemName').innerText = `Task: ${item.name} (${item.location || 'Unknown'})`;
     document.getElementById('logDate').value = new Date().toISOString().split('T')[0];
-    document.getElementById('logCost').value = ""; // Reset cost field
+    document.getElementById('logCost').value = "";
     document.getElementById('logModal').style.display = "block";
 };
 
@@ -304,13 +304,8 @@ window.saveToGitHub = async function() {
     } catch (error) { window.showStatusMsg("❌ Error saving tasks.", "red"); }
 };
 
-async function loadInitialData() {
-    document.getElementById('ghUser').value = localStorage.getItem('ghUser') || '';
-    document.getElementById('ghRepo').value = localStorage.getItem('ghRepo') || '';
-    document.getElementById('ghToken').value = localStorage.getItem('ghToken') || '';
-
+window.loadInitialData = async function() {
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
-
     try {
         if (user && repo && token) {
             const dataResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/data.json`, { headers: { 'Authorization': `token ${token}` } });
@@ -341,13 +336,11 @@ async function loadInitialData() {
         
         window.populateLocationDropdown();
         window.populateCategoryDropdown();
-        
         window.renderAllViews(); 
-        
     } catch (error) {
-        document.getElementById('dashboard-list').innerHTML = `<p style="color:red;">Error loading: ${error.message}</p>`;
+        document.getElementById('status-message').innerHTML = `<p style="color:red;">Error loading: ${error.message}</p>`;
     }
-}
+};
 
 // ==========================================
 // 7. VIEW COORDINATOR
@@ -362,15 +355,6 @@ window.renderAllViews = function() {
 // ==========================================
 // 8. FORM SUBMISSIONS
 // ==========================================
-document.getElementById('settingsForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    localStorage.setItem('ghUser', document.getElementById('ghUser').value.trim());
-    localStorage.setItem('ghRepo', document.getElementById('ghRepo').value.trim());
-    localStorage.setItem('ghToken', document.getElementById('ghToken').value.trim());
-    window.showStatusMsg("⏳ Refreshing connection...", "blue");
-    loadInitialData(); 
-});
-
 document.getElementById('itemForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const idToEdit = document.getElementById('itemId').value;
@@ -419,7 +403,7 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
     e.preventDefault();
     const id = document.getElementById('logItemId').value;
     const dateCompleted = document.getElementById('logDate').value;
-    const cost = parseFloat(document.getElementById('logCost').value) || 0; // Grabbing the new cost value
+    const cost = parseFloat(document.getElementById('logCost').value) || 0;
     
     const itemIndex = window.appData.items.findIndex(i => i.id === id);
     
@@ -427,7 +411,7 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
         window.appData.items[itemIndex].history.push({
             date_completed: dateCompleted, 
             notes: document.getElementById('logNotes').value,
-            cost: cost // Saving it to history
+            cost: cost
         });
         window.appData.items[itemIndex].next_due = window.calculateNextDue(dateCompleted, window.appData.items[itemIndex].frequency_months);
         
@@ -437,8 +421,19 @@ document.getElementById('logForm').addEventListener('submit', async function(e) 
     }
 });
 
-loadInitialData();
+// ==========================================
+// 9. APP INITIALIZATION
+// ==========================================
+// Allow each JS file to inject its own HTML layout into the empty shell
+if (window.initDashboard) window.initDashboard();
+if (window.initTimeline) window.initTimeline();
+if (window.initAllTasks) window.initAllTasks();
+if (window.initSettings) window.initSettings();
 
+// Load the JSON data
+window.loadInitialData();
+
+// Hash router
 setTimeout(() => {
     const initialHash = window.location.hash.replace('#', '') || 'dashboard';
     const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'all': 'tab-all', 'settings': 'tab-settings' };
