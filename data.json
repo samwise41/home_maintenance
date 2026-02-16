@@ -105,15 +105,6 @@
       "history": []
     },
     {
-      "id": "item-1771111209137",
-      "name": "Clean baseboards ",
-      "location": "Whole House",
-      "category": "Other",
-      "frequency_months": 6,
-      "next_due": "2026-02-14",
-      "history": []
-    },
-    {
       "id": "item-1771111237947",
       "name": "Clean Window Tracks",
       "location": "Whole House",
@@ -174,6 +165,15 @@
       "category": "Other",
       "frequency_months": 6,
       "next_due": "2026-02-15",
+      "history": []
+    },
+    {
+      "id": "item-1771111209137",
+      "name": "Clean baseboards - Main Floor",
+      "location": "Whole House",
+      "category": "Other",
+      "frequency_months": 6,
+      "next_due": "2026-02-16",
       "history": []
     },
     {
