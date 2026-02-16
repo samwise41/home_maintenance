@@ -58,6 +58,21 @@
       ]
     },
     {
+      "id": "item-1771259239980",
+      "name": "Flush Water Heater",
+      "location": "Basement",
+      "category": "Plumbing",
+      "frequency_months": 12,
+      "next_due": "2025-12-02",
+      "history": [
+        {
+          "date_completed": "2024-12-02",
+          "notes": "Initial entry",
+          "cost": 0
+        }
+      ]
+    },
+    {
       "id": "item-1771053843898",
       "name": "Clean Fridge ",
       "location": "Kitchen",
