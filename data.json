@@ -135,15 +135,6 @@
       "history": []
     },
     {
-      "id": "item-1771111297144",
-      "name": "Clean behind fridge and Vacuum Coils",
-      "location": "Kitchen",
-      "category": "Appliance",
-      "frequency_months": 12,
-      "next_due": "2026-02-16",
-      "history": []
-    },
-    {
       "id": "item-1771111209137",
       "name": "Clean baseboards - Main Floor",
       "location": "Main Floor",
@@ -393,6 +384,21 @@
         {
           "date_completed": "2026-02-14",
           "notes": "Initial entry"
+        }
+      ]
+    },
+    {
+      "id": "item-1771111297144",
+      "name": "Clean behind fridge and Vacuum Coils",
+      "location": "Kitchen",
+      "category": "Appliance",
+      "frequency_months": 12,
+      "next_due": "2027-02-21",
+      "history": [
+        {
+          "date_completed": "2026-02-21",
+          "notes": "Added via edit",
+          "cost": 0
         }
       ]
     },
