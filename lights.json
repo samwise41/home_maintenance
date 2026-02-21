@@ -710,6 +710,18 @@
           ]
         }
       ]
+    },
+    {
+      "id": "fixture-1771714041437",
+      "name": "Family Room Ceiling Fan",
+      "location": "Main Floor",
+      "bulbs": [
+        {
+          "id": "bulb-1771714041436-0",
+          "position": "Ceiling Fan",
+          "history": []
+        }
+      ]
     }
   ]
 }
