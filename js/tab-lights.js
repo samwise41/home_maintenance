@@ -15,11 +15,8 @@ window.initLights = function() {
         const fixtureName = document.getElementById('fixtureName').value;
         const fixtureLocation = document.getElementById('fixtureLocation').value;
         
-        // Grab existing fixture if editing so we don't lose bulb history
         let existingFixture = null;
-        if(fixtureId) {
-            existingFixture = window.lightsData.fixtures.find(f => f.id === fixtureId);
-        }
+        if(fixtureId) existingFixture = window.lightsData.fixtures.find(f => f.id === fixtureId);
 
         // Gather dynamic bulbs
         const bulbRows = document.querySelectorAll('.bulb-row');
@@ -28,39 +25,31 @@ window.initLights = function() {
         bulbRows.forEach((row, index) => {
             const idInput = row.querySelector('.bulb-id-input').value;
             const posInput = row.querySelector('.bulb-pos-input').value.trim();
-            const typeInput = row.querySelector('.bulb-type-input').value.trim();
             
-            if(posInput !== "" && typeInput !== "") {
+            if(posInput !== "") {
                 let history = [];
                 let newBulbId = idInput;
                 
-                // If editing an existing bulb, copy over its old history
                 if(existingFixture && idInput) {
                     const existingBulb = existingFixture.bulbs.find(b => b.id === idInput);
-                    if(existingBulb) {
-                        history = existingBulb.history;
-                    }
+                    if(existingBulb) history = existingBulb.history;
                 } else {
-                    // It's a brand new bulb slot added to the fixture
                     newBulbId = 'bulb-' + Date.now() + '-' + index;
                 }
                 
                 bulbs.push({
                     id: newBulbId,
                     position: posInput,
-                    bulb_type: typeInput,
                     history: history
                 });
             }
         });
 
         if (fixtureId && existingFixture) {
-            // Update existing
             existingFixture.name = fixtureName;
             existingFixture.location = fixtureLocation;
             existingFixture.bulbs = bulbs;
         } else {
-            // Create new
             const newFixture = {
                 id: 'fixture-' + Date.now(),
                 name: fixtureName,
@@ -81,6 +70,7 @@ window.initLights = function() {
         const fixId = document.getElementById('bulbLogFixtureId').value;
         const bulbId = document.getElementById('bulbLogBulbId').value;
         const logDate = document.getElementById('bulbLogDate').value;
+        const logType = document.getElementById('bulbLogType').value.trim();
         const logCost = parseFloat(document.getElementById('bulbLogCost').value) || 0;
         const logNotes = document.getElementById('bulbLogNotes').value;
 
@@ -90,6 +80,7 @@ window.initLights = function() {
             if(bulb) {
                 bulb.history.push({
                     date_replaced: logDate,
+                    bulb_type: logType,
                     cost: logCost,
                     notes: logNotes
                 });
@@ -113,7 +104,7 @@ window.openFixtureModal = function() {
     document.getElementById('bulbInputsContainer').innerHTML = ''; 
     
     window.populateLocationDropdown();
-    window.addBulbInput(); // Add one blank slot by default
+    window.addBulbInput(); 
     document.getElementById('fixtureModal').style.display = "block";
 };
 
@@ -129,7 +120,6 @@ window.openEditFixtureModal = function(id) {
     
     window.populateLocationDropdown();
     const locSelect = document.getElementById('fixtureLocation');
-    // Handle legacy locations not in dropdown
     if (fixture.location && !window.appLocations.includes(fixture.location)) {
         const opt = document.createElement('option');
         opt.value = fixture.location;
@@ -138,10 +128,9 @@ window.openEditFixtureModal = function(id) {
     }
     locSelect.value = fixture.location || "";
 
-    // Populate bulbs
     document.getElementById('bulbInputsContainer').innerHTML = ''; 
     fixture.bulbs.forEach(bulb => {
-        window.addBulbInput(bulb.position, bulb.bulb_type, bulb.id);
+        window.addBulbInput(bulb.position, bulb.id);
     });
 
     document.getElementById('fixtureModal').style.display = "block";
@@ -158,7 +147,7 @@ window.deleteFixture = async function() {
     await window.saveLightsToGitHub();
 };
 
-window.addBulbInput = function(pos = "", type = "", id = "") {
+window.addBulbInput = function(pos = "", id = "") {
     const container = document.getElementById('bulbInputsContainer');
     const inputDiv = document.createElement('div');
     inputDiv.className = 'bulb-row';
@@ -166,23 +155,22 @@ window.addBulbInput = function(pos = "", type = "", id = "") {
     inputDiv.style.gap = "8px";
     inputDiv.style.marginBottom = "5px";
     
-    // Inject two inputs per row (position and type), plus a hidden ID field so we don't lose history on edit
     inputDiv.innerHTML = `
         <input type="hidden" class="bulb-id-input" value="${id}">
-        <input type="text" class="bulb-pos-input" placeholder="Position (e.g., North)" style="flex: 1;" value="${pos}" required>
-        <input type="text" class="bulb-type-input" placeholder="Type (e.g., A19 60W)" style="flex: 1;" value="${type}" required>
+        <input type="text" class="bulb-pos-input" placeholder="Position (e.g., North, Middle, Main)" style="flex: 1;" value="${pos}" required>
         <button type="button" class="btn-danger btn-sm" onclick="this.parentElement.remove()">X</button>
     `;
     
     container.appendChild(inputDiv);
 };
 
-window.openBulbLogModal = function(fixtureId, bulbId, bulbName, fixtureName) {
+window.openBulbLogModal = function(fixtureId, bulbId, bulbName, fixtureName, lastType) {
     document.getElementById('bulbLogForm').reset();
     document.getElementById('bulbLogFixtureId').value = fixtureId;
     document.getElementById('bulbLogBulbId').value = bulbId;
     document.getElementById('bulbLogName').innerText = `${fixtureName} - ${bulbName}`;
     document.getElementById('bulbLogDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('bulbLogType').value = lastType || "";
     document.getElementById('bulbLogModal').style.display = "block";
 };
 
@@ -201,7 +189,6 @@ window.renderLights = function() {
         return;
     }
 
-    // Sort fixtures alphabetically by location then name
     const sortedFixtures = [...window.lightsData.fixtures].sort((a, b) => {
         if(a.location === b.location) return a.name.localeCompare(b.name);
         return a.location.localeCompare(b.location);
@@ -212,29 +199,37 @@ window.renderLights = function() {
         
         fixture.bulbs.forEach(bulb => {
             let lastReplacedTxt = "Never replaced";
+            let currentType = "Unknown";
             let historyHtml = '<p style="font-size: 0.8em; color: #888; font-style: italic;">No history yet.</p>';
             
             if (bulb.history && bulb.history.length > 0) {
+                // Because we sort newest first, index 0 is the current bulb
+                currentType = bulb.history[0].bulb_type || "Unknown";
                 lastReplacedTxt = `Replaced: ${window.formatDate(bulb.history[0].date_replaced)}`;
+                
                 historyHtml = bulb.history.map(h => 
                     `<div style="font-size: 0.85em; border-bottom: 1px dashed #ddd; padding: 4px 0;">
                         <strong>${window.formatDate(h.date_replaced)}</strong> 
+                        | ${h.bulb_type || 'Unknown'}
                         ${h.cost > 0 ? `($${h.cost})` : ''} 
                         ${h.notes ? `- ${h.notes}` : ''}
                     </div>`
                 ).join('');
             }
 
+            // Clean string to pass into onclick securely
+            const safeCurrentType = currentType.replace(/'/g, "\\'");
+
             bulbHtml += `
                 <div style="background: #fdfdfd; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-weight: bold; color: var(--text-main); font-size: 0.95em;">💡 ${bulb.position}</div>
-                            <div style="font-size: 0.85em; color: var(--text-light);">Type: <strong>${bulb.bulb_type || 'Unknown'}</strong> | ${lastReplacedTxt}</div>
+                            <div style="font-size: 0.85em; color: var(--text-light);">Current Type: <strong>${currentType}</strong> | ${lastReplacedTxt}</div>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <button class="btn-outline btn-sm" onclick="window.toggleBulbHistory('${bulb.id}')">🕒 History</button>
-                            <button class="btn-primary btn-sm" onclick="window.openBulbLogModal('${fixture.id}', '${bulb.id}', '${bulb.position}', '${fixture.name}')">🔌 Replace</button>
+                            <button class="btn-primary btn-sm" onclick="window.openBulbLogModal('${fixture.id}', '${bulb.id}', '${bulb.position}', '${fixture.name}', '${safeCurrentType === 'Unknown' ? '' : safeCurrentType}')">🔌 Replace</button>
                         </div>
                     </div>
                     <div id="bulb-hist-${bulb.id}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
