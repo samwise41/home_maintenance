@@ -16,6 +16,23 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771710464116",
+      "name": "Laundry Room North",
+      "location": "Laundry Room",
+      "bulbs": [
+        {
+          "id": "bulb-1771710464116-0",
+          "position": "East",
+          "history": []
+        },
+        {
+          "id": "bulb-1771710464116-1",
+          "position": "West",
+          "history": []
+        }
+      ]
     }
   ]
 }
