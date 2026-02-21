@@ -124,11 +124,12 @@
 <div id="bulbLogModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="window.closeModal('bulbLogModal')">&times;</span>
-        <h2>🔌 Replace Bulb</h2>
+        <h2 id="bulbLogModalTitle">🔌 Replace Bulb</h2>
         <p id="bulbLogName" style="color: var(--text-light); font-weight: bold;"></p>
         <form id="bulbLogForm">
             <input type="hidden" id="bulbLogFixtureId">
             <input type="hidden" id="bulbLogBulbId">
+            <input type="hidden" id="bulbLogHistoryIndex">
             
             <label>Date Replaced:</label>
             <input type="date" id="bulbLogDate" required>
@@ -139,8 +140,12 @@
                     <input type="text" id="bulbLogBrand" placeholder="e.g., GE, Philips" required>
                 </div>
                 <div>
-                    <label>Bulb Name/Type:</label>
-                    <input type="text" id="bulbLogBulbName" placeholder="e.g., A19 LED, BR30" required>
+                    <label>Bulb Type:</label>
+                    <input type="text" id="bulbLogBulbName" placeholder="e.g., LED, Incandescent" required>
+                </div>
+                <div>
+                    <label>Size/Base:</label>
+                    <input type="text" id="bulbLogSize" placeholder="e.g., A19, BR30, E26" required>
                 </div>
                 <div>
                     <label>Wattage:</label>
@@ -151,7 +156,7 @@
                     <input type="text" id="bulbLogColor" placeholder="e.g., Soft White (2700K)" required>
                 </div>
                 <div>
-                    <label>Brightness (Lumens):</label>
+                    <label>Brightness:</label>
                     <input type="text" id="bulbLogBrightness" placeholder="e.g., 800 Lumens" required>
                 </div>
                 <div>
@@ -166,7 +171,10 @@
             <label>Notes (Optional):</label>
             <textarea id="bulbLogNotes"></textarea>
             
-            <button type="submit" class="btn-primary" style="margin-top: 15px;">Log Replacement</button>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="submit" class="btn-primary" style="flex: 1;">Save Log</button>
+                <button type="button" id="deleteLogBtn" class="btn-danger" style="display: none;" onclick="window.deleteBulbHistory()">🗑️ Delete</button>
+            </div>
         </form>
     </div>
 </div>
