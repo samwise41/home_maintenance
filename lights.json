@@ -722,6 +722,23 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771714088922",
+      "name": "Oven Light",
+      "location": "Kitchen",
+      "bulbs": [
+        {
+          "id": "bulb-1771714088922-0",
+          "position": "Top",
+          "history": []
+        },
+        {
+          "id": "bulb-1771714088922-1",
+          "position": "Bottom",
+          "history": []
+        }
+      ]
     }
   ]
 }
