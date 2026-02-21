@@ -75,6 +75,7 @@ window.initLights = function() {
         const logBulbName = document.getElementById('bulbLogBulbName').value.trim();
         const logWattage = document.getElementById('bulbLogWattage').value.trim();
         const logColor = document.getElementById('bulbLogColor').value.trim();
+        const logBrightness = document.getElementById('bulbLogBrightness').value.trim();
         const logWarranty = document.getElementById('bulbLogWarranty').value.trim();
         
         const logCost = parseFloat(document.getElementById('bulbLogCost').value) || 0;
@@ -90,6 +91,7 @@ window.initLights = function() {
                     bulb_name: logBulbName,
                     wattage: logWattage,
                     color: logColor,
+                    brightness: logBrightness,
                     warranty: logWarranty,
                     cost: logCost,
                     notes: logNotes
@@ -174,7 +176,7 @@ window.addBulbInput = function(pos = "", id = "") {
     container.appendChild(inputDiv);
 };
 
-window.openBulbLogModal = function(fixtureId, bulbId, positionName, fixtureName, lastBrand, lastBulbName, lastWattage, lastColor, lastWarranty) {
+window.openBulbLogModal = function(fixtureId, bulbId, positionName, fixtureName, lastBrand, lastBulbName, lastWattage, lastColor, lastBrightness, lastWarranty) {
     document.getElementById('bulbLogForm').reset();
     document.getElementById('bulbLogFixtureId').value = fixtureId;
     document.getElementById('bulbLogBulbId').value = bulbId;
@@ -185,6 +187,7 @@ window.openBulbLogModal = function(fixtureId, bulbId, positionName, fixtureName,
     document.getElementById('bulbLogBulbName').value = lastBulbName || "";
     document.getElementById('bulbLogWattage').value = lastWattage || "";
     document.getElementById('bulbLogColor').value = lastColor || "";
+    document.getElementById('bulbLogBrightness').value = lastBrightness || "";
     document.getElementById('bulbLogWarranty').value = lastWarranty || "";
     
     document.getElementById('bulbLogModal').style.display = "block";
@@ -218,7 +221,7 @@ window.renderLights = function() {
             let displayType = "Unknown";
             let historyHtml = '<p style="font-size: 0.8em; color: #888; font-style: italic;">No history yet.</p>';
             
-            let currentBrand = "", currentBulbName = "", currentWattage = "", currentColor = "", currentWarranty = "";
+            let currentBrand = "", currentBulbName = "", currentWattage = "", currentColor = "", currentBrightness = "", currentWarranty = "";
             
             if (bulb.history && bulb.history.length > 0) {
                 const latest = bulb.history[0];
@@ -227,9 +230,10 @@ window.renderLights = function() {
                 currentBulbName = latest.bulb_name || latest.bulb_type || ""; 
                 currentWattage = latest.wattage || "";
                 currentColor = latest.color || "";
+                currentBrightness = latest.brightness || "";
                 currentWarranty = latest.warranty || "";
                 
-                const parts = [currentBrand, currentBulbName, currentWattage, currentColor].filter(p => p !== "");
+                const parts = [currentBrand, currentBulbName, currentWattage, currentColor, currentBrightness].filter(p => p !== "");
                 displayType = parts.length > 0 ? parts.join(' | ') : "Unknown";
                 
                 lastReplacedTxt = `Replaced: ${window.formatDate(latest.date_replaced)}`;
@@ -239,9 +243,10 @@ window.renderLights = function() {
                     const hName = h.bulb_name || h.bulb_type || "";
                     const hWatt = h.wattage || "";
                     const hColor = h.color || "";
+                    const hBright = h.brightness || "";
                     const hWarranty = h.warranty ? `${h.warranty}yr Warranty` : "";
                     
-                    const hParts = [hBrand, hName, hWatt, hColor, hWarranty].filter(p => p !== "").join(' | ');
+                    const hParts = [hBrand, hName, hWatt, hColor, hBright, hWarranty].filter(p => p !== "").join(' | ');
                     const hDisplay = hParts ? hParts : 'Unknown';
                     
                     return `<div style="font-size: 0.85em; border-bottom: 1px dashed #ddd; padding: 4px 0;">
@@ -258,6 +263,7 @@ window.renderLights = function() {
             const safeName = currentBulbName.replace(/'/g, "\\'");
             const safeWatt = currentWattage.replace(/'/g, "\\'");
             const safeColor = currentColor.replace(/'/g, "\\'");
+            const safeBright = currentBrightness.replace(/'/g, "\\'");
             const safeWarranty = currentWarranty.replace(/'/g, "\\'");
 
             bulbHtml += `
@@ -271,7 +277,7 @@ window.renderLights = function() {
                             </div>
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
-                            <button class="btn-primary btn-sm" onclick="window.openBulbLogModal('${fixture.id}', '${bulb.id}', '${bulb.position}', '${fixture.name}', '${safeBrand}', '${safeName}', '${safeWatt}', '${safeColor}', '${safeWarranty}')">🔌 Replace</button>
+                            <button class="btn-primary btn-sm" onclick="window.openBulbLogModal('${fixture.id}', '${bulb.id}', '${bulb.position}', '${fixture.name}', '${safeBrand}', '${safeName}', '${safeWatt}', '${safeColor}', '${safeBright}', '${safeWarranty}')">🔌 Replace</button>
                             <button class="btn-outline btn-sm" onclick="window.toggleBulbHistory('${bulb.id}')">🕒 History</button>
                         </div>
                     </div>
