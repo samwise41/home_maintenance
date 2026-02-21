@@ -108,15 +108,6 @@
       "history": []
     },
     {
-      "id": "item-1771111333170",
-      "name": "Clean oven",
-      "location": "Kitchen",
-      "category": "Appliance",
-      "frequency_months": 24,
-      "next_due": "2026-02-14",
-      "history": []
-    },
-    {
       "id": "item-1771187070673",
       "name": "Vacuum main floor couch",
       "location": "Kitchen",
@@ -402,6 +393,21 @@
         {
           "date_completed": "2026-02-14",
           "notes": "Initial entry"
+        }
+      ]
+    },
+    {
+      "id": "item-1771111333170",
+      "name": "Clean oven",
+      "location": "Kitchen",
+      "category": "Appliance",
+      "frequency_months": 24,
+      "next_due": "2028-02-21",
+      "history": [
+        {
+          "date_completed": "2026-02-21",
+          "notes": "Added via edit",
+          "cost": 0
         }
       ]
     }
