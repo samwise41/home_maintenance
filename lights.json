@@ -429,7 +429,21 @@
         {
           "id": "bulb-1771712569393-0",
           "position": "Ceiling Fan",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-19",
+              "purchase_date": "2026-02-18",
+              "brand": "ALIDE",
+              "bulb_name": "Halogen Candelabra Bulbs Equiva Dimmable",
+              "size": "E11",
+              "wattage": "75",
+              "color": "2700",
+              "brightness": "750",
+              "warranty": "0",
+              "cost": 4.5,
+              "notes": ""
+            }
+          ]
         }
       ]
     },
@@ -501,7 +515,8 @@
         {
           "id": "bulb-1771712675565-0",
           "position": "West",
-          "history": [{
+          "history": [
+            {
               "date_replaced": "2026-02-09",
               "brand": "GE",
               "bulb_name": "Reveal",
@@ -561,7 +576,8 @@
         {
           "id": "bulb-1771712696517-0",
           "position": "East",
-          "history": [{
+          "history": [
+            {
               "date_replaced": "2026-02-09",
               "brand": "GE",
               "bulb_name": "Reveal",
