@@ -331,7 +331,20 @@
         {
           "id": "bulb-1771712044363-2",
           "position": "Master West #3",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         }
       ]
     },
