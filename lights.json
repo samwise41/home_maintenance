@@ -514,6 +514,18 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771712756921",
+      "name": "Basement Stairs",
+      "location": "Basement",
+      "bulbs": [
+        {
+          "id": "bulb-1771712756921-0",
+          "position": "Basement Stairs",
+          "history": []
+        }
+      ]
     }
   ]
 }
