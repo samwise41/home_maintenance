@@ -30,6 +30,7 @@
         <button class="nav-tab active" onclick="window.switchTab('tab-dashboard', this)">Dashboard</button>
         <button class="nav-tab" onclick="window.switchTab('tab-timeline', this)">📅 By Due Date</button>
         <button class="nav-tab" onclick="window.switchTab('tab-category', this)">📁 By Category</button>
+        <button class="nav-tab" onclick="window.switchTab('tab-lights', this)">💡 Lighting</button>
         <button class="nav-tab" onclick="window.switchTab('tab-all', this)">All Tasks</button>
         <button class="nav-tab" onclick="window.switchTab('tab-settings', this)">⚙️ Utilities</button>
     </aside>
@@ -40,6 +41,7 @@
         <div id="tab-dashboard" class="tab-content active"></div>
         <div id="tab-timeline" class="tab-content"></div>
         <div id="tab-category" class="tab-content"></div>
+        <div id="tab-lights" class="tab-content"></div>
         <div id="tab-all" class="tab-content"></div>
         <div id="tab-settings" class="tab-content"></div>
     </main>
@@ -89,6 +91,53 @@
     </div>
 </div>
 
+<div id="fixtureModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="window.closeModal('fixtureModal')">&times;</span>
+        <h2>Add New Fixture</h2>
+        <form id="fixtureForm">
+            <label>Fixture Name (e.g., Vanity, Ceiling Fan):</label>
+            <input type="text" id="fixtureName" required>
+            
+            <label>Location:</label>
+            <select id="fixtureLocation" required></select>
+            
+            <label>Default Bulb Type (e.g., A19 LED 60W):</label>
+            <input type="text" id="fixtureBulbType" required>
+            
+            <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label>Bulbs in this fixture:</label>
+                    <button type="button" class="btn-sm btn-outline" onclick="window.addBulbInput()">+ Add Bulb Slot</button>
+                </div>
+                <div id="bulbInputsContainer" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                    </div>
+            </div>
+            
+            <button type="submit" class="btn-primary" style="margin-top: 15px;">Save Fixture</button>
+        </form>
+    </div>
+</div>
+
+<div id="bulbLogModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="window.closeModal('bulbLogModal')">&times;</span>
+        <h2>🔌 Replace Bulb</h2>
+        <p id="bulbLogName" style="color: var(--text-light); font-weight: bold;"></p>
+        <form id="bulbLogForm">
+            <input type="hidden" id="bulbLogFixtureId">
+            <input type="hidden" id="bulbLogBulbId">
+            <label>Date Replaced:</label>
+            <input type="date" id="bulbLogDate" required>
+            <label>Cost ($):</label>
+            <input type="number" step="0.01" id="bulbLogCost" placeholder="0.00">
+            <label>Notes (Optional):</label>
+            <textarea id="bulbLogNotes"></textarea>
+            <button type="submit" class="btn-primary" style="margin-top: 10px;">Log Replacement</button>
+        </form>
+    </div>
+</div>
+
 <script>
     var cacheBuster = '?v=' + new Date().getTime();
     document.write('<script src="js/app.js' + cacheBuster + '"><\/script>');
@@ -96,6 +145,7 @@
     document.write('<script src="js/tab-timeline.js' + cacheBuster + '"><\/script>');
     document.write('<script src="js/tab-category.js' + cacheBuster + '"><\/script>');
     document.write('<script src="js/tab-tasks.js' + cacheBuster + '"><\/script>');
+    document.write('<script src="js/tab-lights.js' + cacheBuster + '"><\/script>');
     document.write('<script src="js/tab-settings.js' + cacheBuster + '"><\/script>');
 </script>
 
