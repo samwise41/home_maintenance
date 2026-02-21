@@ -20,7 +20,13 @@
         {
           "id": "bulb-1771709550368-1",
           "position": "East",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "cost": 0,
+              "notes": ""
+            }
+          ]
         }
       ]
     }
