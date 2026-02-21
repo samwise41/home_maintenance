@@ -492,6 +492,28 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771712731926",
+      "name": "Upstairs Bathroom",
+      "location": "Bathroom",
+      "bulbs": [
+        {
+          "id": "bulb-1771712731926-0",
+          "position": "Upstairs Bathroom #1",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712731926-1",
+          "position": "Upstairs Bathroom #2",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712731926-2",
+          "position": "Upstairs Bathroom #3",
+          "history": []
+        }
+      ]
     }
   ]
 }
