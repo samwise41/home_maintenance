@@ -256,6 +256,28 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771712081639",
+      "name": "Entry Chandelier",
+      "location": "Main Floor",
+      "bulbs": [
+        {
+          "id": "bulb-1771712081639-0",
+          "position": "East",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712081639-1",
+          "position": "North",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712081639-2",
+          "position": "South",
+          "history": []
+        }
+      ]
     }
   ]
 }
