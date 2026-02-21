@@ -70,7 +70,12 @@ window.initLights = function() {
         const fixId = document.getElementById('bulbLogFixtureId').value;
         const bulbId = document.getElementById('bulbLogBulbId').value;
         const logDate = document.getElementById('bulbLogDate').value;
-        const logType = document.getElementById('bulbLogType').value.trim();
+        
+        const logBrand = document.getElementById('bulbLogBrand').value.trim();
+        const logBulbName = document.getElementById('bulbLogBulbName').value.trim();
+        const logWattage = document.getElementById('bulbLogWattage').value.trim();
+        const logColor = document.getElementById('bulbLogColor').value.trim();
+        
         const logCost = parseFloat(document.getElementById('bulbLogCost').value) || 0;
         const logNotes = document.getElementById('bulbLogNotes').value;
 
@@ -80,7 +85,10 @@ window.initLights = function() {
             if(bulb) {
                 bulb.history.push({
                     date_replaced: logDate,
-                    bulb_type: logType,
+                    brand: logBrand,
+                    bulb_name: logBulbName,
+                    wattage: logWattage,
+                    color: logColor,
                     cost: logCost,
                     notes: logNotes
                 });
@@ -164,13 +172,18 @@ window.addBulbInput = function(pos = "", id = "") {
     container.appendChild(inputDiv);
 };
 
-window.openBulbLogModal = function(fixtureId, bulbId, bulbName, fixtureName, lastType) {
+window.openBulbLogModal = function(fixtureId, bulbId, positionName, fixtureName, lastBrand, lastBulbName, lastWattage, lastColor) {
     document.getElementById('bulbLogForm').reset();
     document.getElementById('bulbLogFixtureId').value = fixtureId;
     document.getElementById('bulbLogBulbId').value = bulbId;
-    document.getElementById('bulbLogName').innerText = `${fixtureName} - ${bulbName}`;
+    document.getElementById('bulbLogName').innerText = `${fixtureName} - ${positionName}`;
     document.getElementById('bulbLogDate').value = new Date().toISOString().split('T')[0];
-    document.getElementById('bulbLogType').value = lastType || "";
+    
+    document.getElementById('bulbLogBrand').value = lastBrand || "";
+    document.getElementById('bulbLogBulbName').value = lastBulbName || "";
+    document.getElementById('bulbLogWattage').value = lastWattage || "";
+    document.getElementById('bulbLogColor').value = lastColor || "";
+    
     document.getElementById('bulbLogModal').style.display = "block";
 };
 
@@ -199,37 +212,62 @@ window.renderLights = function() {
         
         fixture.bulbs.forEach(bulb => {
             let lastReplacedTxt = "Never replaced";
-            let currentType = "Unknown";
+            let displayType = "Unknown";
             let historyHtml = '<p style="font-size: 0.8em; color: #888; font-style: italic;">No history yet.</p>';
             
+            let currentBrand = "", currentBulbName = "", currentWattage = "", currentColor = "";
+            
             if (bulb.history && bulb.history.length > 0) {
-                // Because we sort newest first, index 0 is the current bulb
-                currentType = bulb.history[0].bulb_type || "Unknown";
-                lastReplacedTxt = `Replaced: ${window.formatDate(bulb.history[0].date_replaced)}`;
+                const latest = bulb.history[0];
                 
-                historyHtml = bulb.history.map(h => 
-                    `<div style="font-size: 0.85em; border-bottom: 1px dashed #ddd; padding: 4px 0;">
+                // Extract properties (with fallback for legacy 'bulb_type' if it exists)
+                currentBrand = latest.brand || "";
+                currentBulbName = latest.bulb_name || latest.bulb_type || ""; 
+                currentWattage = latest.wattage || "";
+                currentColor = latest.color || "";
+                
+                // Build a nice display string for the main card view
+                const parts = [currentBrand, currentBulbName, currentWattage, currentColor].filter(p => p !== "");
+                displayType = parts.length > 0 ? parts.join(' | ') : "Unknown";
+                
+                lastReplacedTxt = `Replaced: ${window.formatDate(latest.date_replaced)}`;
+                
+                historyHtml = bulb.history.map(h => {
+                    const hBrand = h.brand || "";
+                    const hName = h.bulb_name || h.bulb_type || "";
+                    const hWatt = h.wattage || "";
+                    const hColor = h.color || "";
+                    const hParts = [hBrand, hName, hWatt, hColor].filter(p => p !== "").join(' | ');
+                    const hDisplay = hParts ? hParts : 'Unknown';
+                    
+                    return `<div style="font-size: 0.85em; border-bottom: 1px dashed #ddd; padding: 4px 0;">
                         <strong>${window.formatDate(h.date_replaced)}</strong> 
-                        | ${h.bulb_type || 'Unknown'}
-                        ${h.cost > 0 ? `($${h.cost})` : ''} 
-                        ${h.notes ? `- ${h.notes}` : ''}
-                    </div>`
-                ).join('');
+                        <br><span style="color: var(--text-light);">${hDisplay}</span>
+                        ${h.cost > 0 ? ` <strong>($${h.cost})</strong>` : ''} 
+                        ${h.notes ? `<br><em>Notes: ${h.notes}</em>` : ''}
+                    </div>`;
+                }).join('');
             }
 
-            // Clean string to pass into onclick securely
-            const safeCurrentType = currentType.replace(/'/g, "\\'");
+            // Clean strings to pass into onclick securely
+            const safeBrand = currentBrand.replace(/'/g, "\\'");
+            const safeName = currentBulbName.replace(/'/g, "\\'");
+            const safeWatt = currentWattage.replace(/'/g, "\\'");
+            const safeColor = currentColor.replace(/'/g, "\\'");
 
             bulbHtml += `
                 <div style="background: #fdfdfd; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-weight: bold; color: var(--text-main); font-size: 0.95em;">💡 ${bulb.position}</div>
-                            <div style="font-size: 0.85em; color: var(--text-light);">Current Type: <strong>${currentType}</strong> | ${lastReplacedTxt}</div>
+                            <div style="font-size: 0.85em; color: var(--text-light); margin-top: 4px;">
+                                <strong>${displayType}</strong><br>
+                                ${lastReplacedTxt}
+                            </div>
                         </div>
-                        <div style="display: flex; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <button class="btn-primary btn-sm" onclick="window.openBulbLogModal('${fixture.id}', '${bulb.id}', '${bulb.position}', '${fixture.name}', '${safeBrand}', '${safeName}', '${safeWatt}', '${safeColor}')">🔌 Replace</button>
                             <button class="btn-outline btn-sm" onclick="window.toggleBulbHistory('${bulb.id}')">🕒 History</button>
-                            <button class="btn-primary btn-sm" onclick="window.openBulbLogModal('${fixture.id}', '${bulb.id}', '${bulb.position}', '${fixture.name}', '${safeCurrentType === 'Unknown' ? '' : safeCurrentType}')">🔌 Replace</button>
                         </div>
                     </div>
                     <div id="bulb-hist-${bulb.id}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
