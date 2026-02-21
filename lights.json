@@ -107,6 +107,28 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771711853730",
+      "name": "Master Closet South",
+      "location": "Master Bedroom",
+      "bulbs": [
+        {
+          "id": "bulb-1771711853730-0",
+          "position": "North",
+          "history": []
+        },
+        {
+          "id": "bulb-1771711853730-1",
+          "position": "South",
+          "history": []
+        },
+        {
+          "id": "bulb-1771711853730-2",
+          "position": "East",
+          "history": []
+        }
+      ]
     }
   ]
 }
