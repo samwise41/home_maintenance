@@ -29,6 +29,24 @@
           ]
         }
       ]
+    },
+    {
+      "id": "fixture-1771709776987",
+      "name": "Laundry North",
+      "location": "Laundry Room",
+      "default_bulb_type": "GE Reveal",
+      "bulbs": [
+        {
+          "id": "bulb-1771709776987-0",
+          "position": "East",
+          "history": []
+        },
+        {
+          "id": "bulb-1771709776987-1",
+          "position": "West",
+          "history": []
+        }
+      ]
     }
   ]
 }
