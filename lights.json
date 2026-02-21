@@ -94,17 +94,56 @@
         {
           "id": "bulb-1771711787762-0",
           "position": "East",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771711787762-1",
           "position": "West",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771711787762-2",
           "position": "North",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         }
       ]
     },
@@ -116,17 +155,56 @@
         {
           "id": "bulb-1771711853730-0",
           "position": "North",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771711853730-1",
           "position": "South",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771711853730-2",
           "position": "East",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         }
       ]
     }
