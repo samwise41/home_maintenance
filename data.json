@@ -293,6 +293,21 @@
       ]
     },
     {
+      "id": "item-1771688888681",
+      "name": "Clean Stovetop ",
+      "location": "Kitchen",
+      "category": "Appliance",
+      "frequency_months": 3,
+      "next_due": "2026-05-20",
+      "history": [
+        {
+          "date_completed": "2026-02-21",
+          "notes": "Initial entry",
+          "cost": 0
+        }
+      ]
+    },
+    {
       "id": "item-1771053763829",
       "name": "Clean Carpets - Basement Family Room ",
       "location": "Basement Family Room ",
