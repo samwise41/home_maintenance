@@ -72,9 +72,10 @@
               "date_replaced": "2026-02-09",
               "brand": "GE",
               "bulb_name": "Reveal",
+              "size": "ST19",
               "wattage": "60",
               "color": "2850k",
-              "brightness": "610",
+              "brightness": "500",
               "warranty": "5",
               "cost": 7.5,
               "notes": ""
