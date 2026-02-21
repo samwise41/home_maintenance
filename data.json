@@ -401,8 +401,8 @@
       "name": "Clean oven",
       "location": "Kitchen",
       "category": "Appliance",
-      "frequency_months": 24,
-      "next_due": "2028-02-21",
+      "frequency_months": 12,
+      "next_due": "2027-02-21",
       "history": [
         {
           "date_completed": "2026-02-21",
