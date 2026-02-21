@@ -453,6 +453,28 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771712675565",
+      "name": "Loft North",
+      "location": "Upstairs",
+      "bulbs": [
+        {
+          "id": "bulb-1771712675565-0",
+          "position": "West",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712675565-1",
+          "position": "East",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712675565-2",
+          "position": "North",
+          "history": []
+        }
+      ]
     }
   ]
 }
