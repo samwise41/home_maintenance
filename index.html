@@ -94,16 +94,15 @@
 <div id="fixtureModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="window.closeModal('fixtureModal')">&times;</span>
-        <h2>Add New Fixture</h2>
+        <h2 id="fixtureModalTitle">Add New Fixture</h2>
         <form id="fixtureForm">
+            <input type="hidden" id="fixtureId">
+            
             <label>Fixture Name (e.g., Vanity, Ceiling Fan):</label>
             <input type="text" id="fixtureName" required>
             
             <label>Location:</label>
             <select id="fixtureLocation" required></select>
-            
-            <label>Default Bulb Type (e.g., A19 LED 60W):</label>
-            <input type="text" id="fixtureBulbType" required>
             
             <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -114,7 +113,10 @@
                     </div>
             </div>
             
-            <button type="submit" class="btn-primary" style="margin-top: 15px;">Save Fixture</button>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="submit" class="btn-primary" style="flex: 1;">Save Fixture</button>
+                <button type="button" id="deleteFixtureBtn" class="btn-danger" style="display: none;" onclick="window.deleteFixture()">🗑️ Delete</button>
+            </div>
         </form>
     </div>
 </div>
