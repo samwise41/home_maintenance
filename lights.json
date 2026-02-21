@@ -395,6 +395,18 @@
           ]
         }
       ]
+    },
+    {
+      "id": "fixture-1771712549484",
+      "name": "J Bedroom Ceiling Fan",
+      "location": "Bedroom",
+      "bulbs": [
+        {
+          "id": "bulb-1771712549484-0",
+          "position": "Ceiling Fan",
+          "history": []
+        }
+      ]
     }
   ]
 }
