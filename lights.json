@@ -1,23 +1,5 @@
 {
   "fixtures": [
-    {
-      "id": "fixture-1771710033436",
-      "name": "Laundry South",
-      "location": "Laundry Room",
-      "bulbs": [
-        {
-          "id": "bulb-1771710033436-0",
-          "position": "East",
-          "bulb_type": "GE",
-          "history": []
-        },
-        {
-          "id": "bulb-1771710033436-1",
-          "position": "West",
-          "bulb_type": "GE",
-          "history": []
-        }
-      ]
-    }
+
   ]
 }
