@@ -407,6 +407,18 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771712569393",
+      "name": "E Bedroom Ceiling Fan",
+      "location": "Bedroom",
+      "bulbs": [
+        {
+          "id": "bulb-1771712569393-0",
+          "position": "Ceiling Fan",
+          "history": []
+        }
+      ]
     }
   ]
 }
