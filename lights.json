@@ -234,6 +234,28 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771712044363",
+      "name": "Master Bathroom West",
+      "location": "Bathroom",
+      "bulbs": [
+        {
+          "id": "bulb-1771712044363-0",
+          "position": "Master West #1",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712044363-1",
+          "position": "Master West #2",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712044363-2",
+          "position": "Master West #3",
+          "history": []
+        }
+      ]
     }
   ]
 }
