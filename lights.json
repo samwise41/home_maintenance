@@ -25,7 +25,19 @@
         {
           "id": "bulb-1771710464116-0",
           "position": "East",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771710464116-1",
