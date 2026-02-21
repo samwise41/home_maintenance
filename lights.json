@@ -475,6 +475,23 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771712696517",
+      "name": "Hall",
+      "location": "Main Floor",
+      "bulbs": [
+        {
+          "id": "bulb-1771712696517-0",
+          "position": "East",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712696517-1",
+          "position": "West",
+          "history": []
+        }
+      ]
     }
   ]
 }
