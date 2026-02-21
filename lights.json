@@ -445,12 +445,38 @@
         {
           "id": "bulb-1771712622506-0",
           "position": "South",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712622506-1",
           "position": "North",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         }
       ]
     },
@@ -462,17 +488,55 @@
         {
           "id": "bulb-1771712675565-0",
           "position": "West",
-          "history": []
+          "history": [{
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712675565-1",
           "position": "East",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712675565-2",
           "position": "North",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 5,
+              "notes": ""
+            }
+          ]
         }
       ]
     },
@@ -484,12 +548,37 @@
         {
           "id": "bulb-1771712696517-0",
           "position": "East",
-          "history": []
+          "history": [{
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712696517-1",
           "position": "West",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2025-12-12",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "A19",
+              "wattage": "60",
+              "color": "2850k",
+              "brightness": "610",
+              "warranty": "5",
+              "cost": 5,
+              "notes": ""
+            }
+          ]
         }
       ]
     },
@@ -501,17 +590,56 @@
         {
           "id": "bulb-1771712731926-0",
           "position": "Upstairs Bathroom #1",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712731926-1",
           "position": "Upstairs Bathroom #2",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712731926-2",
           "position": "Upstairs Bathroom #3",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         }
       ]
     },
@@ -523,7 +651,20 @@
         {
           "id": "bulb-1771712756921-0",
           "position": "Basement Stairs",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         }
       ]
     }
