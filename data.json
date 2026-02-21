@@ -207,15 +207,6 @@
       "history": []
     },
     {
-      "id": "item-1771268299611",
-      "name": "Refill Laundry Drain",
-      "location": "Laundry Room",
-      "category": "Plumbing",
-      "frequency_months": 12,
-      "next_due": "2026-02-16",
-      "history": []
-    },
-    {
       "id": "item-1771268330859",
       "name": "Get AC Tuned Up",
       "location": "Exterior",
@@ -409,6 +400,21 @@
       "category": "Appliance",
       "frequency_months": 12,
       "next_due": "2027-02-21",
+      "history": [
+        {
+          "date_completed": "2026-02-21",
+          "notes": "Added via edit",
+          "cost": 0
+        }
+      ]
+    },
+    {
+      "id": "item-1771268299611",
+      "name": "Refill Laundry Drain (add oil)",
+      "location": "Laundry Room",
+      "category": "Plumbing",
+      "frequency_months": 36,
+      "next_due": "2029-02-21",
       "history": [
         {
           "date_completed": "2026-02-21",
