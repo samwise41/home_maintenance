@@ -207,6 +207,33 @@
           ]
         }
       ]
+    },
+    {
+      "id": "fixture-1771712020454",
+      "name": "Master Bathroom East",
+      "location": "Bathroom",
+      "bulbs": [
+        {
+          "id": "bulb-1771712020454-0",
+          "position": "Master East #1",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712020454-1",
+          "position": "Master East #2",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712020454-2",
+          "position": "Master East #3",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712020454-3",
+          "position": "Master East #4",
+          "history": []
+        }
+      ]
     }
   ]
 }
