@@ -234,17 +234,56 @@
         {
           "id": "bulb-1771712020454-1",
           "position": "Master East #2",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712020454-2",
           "position": "Master East #3",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712020454-3",
           "position": "Master East #4",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         }
       ]
     },
@@ -256,12 +295,38 @@
         {
           "id": "bulb-1771712044363-0",
           "position": "Master West #1",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712044363-1",
           "position": "Master West #2",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712044363-2",
@@ -278,17 +343,56 @@
         {
           "id": "bulb-1771712081639-0",
           "position": "East",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712081639-1",
           "position": "North",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         },
         {
           "id": "bulb-1771712081639-2",
           "position": "South",
-          "history": []
+          "history": [
+            {
+              "date_replaced": "2026-02-21",
+              "brand": "GE",
+              "bulb_name": "Reveal",
+              "size": "ST19",
+              "wattage": "60",
+              "color": "2700",
+              "brightness": "500",
+              "warranty": "5",
+              "cost": 7.5,
+              "notes": ""
+            }
+          ]
         }
       ]
     }
