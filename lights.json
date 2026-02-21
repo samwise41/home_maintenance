@@ -419,6 +419,23 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771712596067",
+      "name": "M Bedroom Scones",
+      "location": "Bedroom",
+      "bulbs": [
+        {
+          "id": "bulb-1771712596067-0",
+          "position": "South",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712596067-1",
+          "position": "North",
+          "history": []
+        }
+      ]
     }
   ]
 }
