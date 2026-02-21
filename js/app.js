@@ -4,6 +4,9 @@
 window.appData = { items: [] };
 window.fileSha = ""; 
 
+window.lightsData = { fixtures: [] };
+window.lightsFileSha = "";
+
 window.appLocations = [];
 window.locationFileSha = "";
 
@@ -32,7 +35,7 @@ window.switchTab = function(tabId, element) {
         if (btn) btn.classList.add('active');
     }
     
-    const hashMap = { 'tab-dashboard': 'dashboard', 'tab-timeline': 'timeline', 'tab-category': 'category', 'tab-all': 'all', 'tab-settings': 'settings' };
+    const hashMap = { 'tab-dashboard': 'dashboard', 'tab-timeline': 'timeline', 'tab-category': 'category', 'tab-lights': 'lights', 'tab-all': 'all', 'tab-settings': 'settings' };
     const newHash = `#${hashMap[tabId]}`;
     if (window.location.hash !== newHash) {
         history.pushState(null, null, newHash);
@@ -46,7 +49,7 @@ window.switchTab = function(tabId, element) {
 
 window.addEventListener('popstate', () => {
     const hash = window.location.hash.replace('#', '') || 'dashboard';
-    const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'all': 'tab-all', 'settings': 'tab-settings' };
+    const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'lights': 'tab-lights', 'all': 'tab-all', 'settings': 'tab-settings' };
     if (reverseMap[hash]) {
         window.switchTab(reverseMap[hash]);
     }
@@ -59,6 +62,7 @@ window.closeModal = function(modalId) {
     document.getElementById(modalId).style.display = "none"; 
 };
 
+// ... (Existing item Modals remain exactly the same) ...
 window.openAddModal = function() {
     document.getElementById('itemForm').reset();
     document.getElementById('itemId').value = ""; 
@@ -76,7 +80,6 @@ window.openAddModal = function() {
 window.openEditModal = function(id) {
     const item = window.appData.items.find(i => i.id === id);
     if (!item) return;
-    
     document.getElementById('itemForm').reset();
     document.getElementById('modalTitle').innerText = "Edit Task";
     document.getElementById('itemId').value = item.id;
@@ -84,7 +87,6 @@ window.openEditModal = function(id) {
     document.getElementById('itemFrequency').value = item.frequency_months;
     document.getElementById('lastCompletedContainer').style.display = "block";
     document.getElementById('deleteBtn').style.display = "block"; 
-    
     window.populateLocationDropdown(); 
     const locSelect = document.getElementById('itemLocation');
     if (item.location && !window.appLocations.includes(item.location)) {
@@ -94,7 +96,6 @@ window.openEditModal = function(id) {
         locSelect.appendChild(opt);
     }
     locSelect.value = item.location || "";
-
     window.populateCategoryDropdown();
     const catSelect = document.getElementById('itemCategory');
     if (item.category && !window.appCategories.includes(item.category)) {
@@ -104,7 +105,6 @@ window.openEditModal = function(id) {
         catSelect.appendChild(opt);
     }
     catSelect.value = item.category || "";
-    
     if (item.history && item.history.length > 0) {
         document.getElementById('itemLastCompleted').value = item.history[item.history.length - 1].date_completed;
     } else {
@@ -145,6 +145,7 @@ window.getStatus = function(nextDueDateStr) {
 };
 
 window.formatDate = function(dateStr) {
+    if(!dateStr) return "N/A";
     const dateObj = new Date(dateStr);
     const adjustedDate = new Date(dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000));
     return adjustedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -174,14 +175,18 @@ window.deleteItem = async function() {
 // 5. DROPDOWN UTILITIES
 // ==========================================
 window.populateLocationDropdown = function() {
-    const selectEl = document.getElementById('itemLocation');
-    if(!selectEl) return;
-    selectEl.innerHTML = '<option value="">Select a location...</option>';
-    window.appLocations.forEach(loc => {
-        const opt = document.createElement('option');
-        opt.value = loc;
-        opt.innerText = loc;
-        selectEl.appendChild(opt);
+    const selects = [document.getElementById('itemLocation'), document.getElementById('fixtureLocation')];
+    selects.forEach(selectEl => {
+        if(!selectEl) return;
+        const currentVal = selectEl.value; // preserve selection if any
+        selectEl.innerHTML = '<option value="">Select a location...</option>';
+        window.appLocations.forEach(loc => {
+            const opt = document.createElement('option');
+            opt.value = loc;
+            opt.innerText = loc;
+            selectEl.appendChild(opt);
+        });
+        if(currentVal) selectEl.value = currentVal;
     });
 };
 
@@ -244,18 +249,14 @@ window.deleteCategory = async function(index) {
 // ==========================================
 // 6. GITHUB API SYNCING
 // ==========================================
-window.saveLocationsToGitHub = async function() {
+window.saveLocationsToGitHub = async function() { /* ... same as your current file ... */ 
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
     if (!user || !repo || !token) return;
     window.showStatusMsg("⏳ Saving Locations...", "blue");
     try {
         const jsonString = JSON.stringify(window.appLocations, null, 2);
         const url = `https://api.github.com/repos/${user}/${repo}/contents/dropdowns/locations.json`;
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: "Updated Locations", content: btoa(unescape(encodeURIComponent(jsonString))), sha: window.locationFileSha })
-        });
+        const response = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: "Updated Locations", content: btoa(unescape(encodeURIComponent(jsonString))), sha: window.locationFileSha }) });
         if (!response.ok) throw new Error("API Save Failed");
         const result = await response.json();
         window.locationFileSha = result.content.sha; 
@@ -263,18 +264,14 @@ window.saveLocationsToGitHub = async function() {
     } catch (error) { window.showStatusMsg("❌ Error saving locations.", "red"); }
 };
 
-window.saveCategoriesToGitHub = async function() {
+window.saveCategoriesToGitHub = async function() { /* ... same as your current file ... */ 
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
     if (!user || !repo || !token) return;
     window.showStatusMsg("⏳ Saving Categories...", "blue");
     try {
         const jsonString = JSON.stringify(window.appCategories, null, 2);
         const url = `https://api.github.com/repos/${user}/${repo}/contents/dropdowns/categories.json`;
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: "Updated Categories", content: btoa(unescape(encodeURIComponent(jsonString))), sha: window.categoryFileSha })
-        });
+        const response = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: "Updated Categories", content: btoa(unescape(encodeURIComponent(jsonString))), sha: window.categoryFileSha }) });
         if (!response.ok) throw new Error("API Save Failed");
         const result = await response.json();
         window.categoryFileSha = result.content.sha; 
@@ -282,21 +279,14 @@ window.saveCategoriesToGitHub = async function() {
     } catch (error) { window.showStatusMsg("❌ Error saving categories.", "red"); }
 };
 
-window.saveToGitHub = async function() {
+window.saveToGitHub = async function() { /* ... same as your current file ... */ 
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
-    if (!user || !repo || !token) {
-        window.showStatusMsg("⚠️ Saved locally. Connect GitHub to save permanently.", "orange");
-        return;
-    }
+    if (!user || !repo || !token) { window.showStatusMsg("⚠️ Saved locally. Connect GitHub to save permanently.", "orange"); return; }
     window.showStatusMsg("⏳ Saving Tasks...", "blue");
     try {
         const jsonString = JSON.stringify(window.appData, null, 2);
         const url = `https://api.github.com/repos/${user}/${repo}/contents/data.json`;
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: "Updated Tasks", content: btoa(unescape(encodeURIComponent(jsonString))), sha: window.fileSha })
-        });
+        const response = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: "Updated Tasks", content: btoa(unescape(encodeURIComponent(jsonString))), sha: window.fileSha }) });
         if (!response.ok) throw new Error("API Save Failed");
         const result = await response.json();
         window.fileSha = result.content.sha; 
@@ -304,34 +294,60 @@ window.saveToGitHub = async function() {
     } catch (error) { window.showStatusMsg("❌ Error saving tasks.", "red"); }
 };
 
+// NEW: Save Lights to GitHub
+window.saveLightsToGitHub = async function() {
+    const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
+    if (!user || !repo || !token) { window.showStatusMsg("⚠️ Lights saved locally. Connect GitHub to save permanently.", "orange"); return; }
+    window.showStatusMsg("⏳ Saving Lights...", "blue");
+    try {
+        const jsonString = JSON.stringify(window.lightsData, null, 2);
+        const url = `https://api.github.com/repos/${user}/${repo}/contents/lights.json`;
+        
+        const payload = { message: "Updated Lights Data", content: btoa(unescape(encodeURIComponent(jsonString))) };
+        if (window.lightsFileSha) payload.sha = window.lightsFileSha; // Include sha if it exists (update), omit if creating new
+
+        const response = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (!response.ok) throw new Error("API Save Failed");
+        const result = await response.json();
+        window.lightsFileSha = result.content.sha; 
+        window.showStatusMsg("✅ Lights Saved!");
+    } catch (error) { window.showStatusMsg("❌ Error saving lights.", "red"); }
+};
+
 window.loadInitialData = async function() {
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
     try {
         if (user && repo && token) {
+            // Load Tasks
             const dataResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/data.json`, { headers: { 'Authorization': `token ${token}` } });
             if (dataResponse.ok) {
-                const dataResult = await dataResponse.json();
-                window.fileSha = dataResult.sha; 
-                window.appData = JSON.parse(decodeURIComponent(escape(atob(dataResult.content))));
+                const dataResult = await dataResponse.json(); window.fileSha = dataResult.sha; window.appData = JSON.parse(decodeURIComponent(escape(atob(dataResult.content))));
             }
-            
+            // Load Locations
             const locResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/dropdowns/locations.json`, { headers: { 'Authorization': `token ${token}` } });
             if (locResponse.ok) {
-                const locResult = await locResponse.json();
-                window.locationFileSha = locResult.sha;
-                window.appLocations = JSON.parse(decodeURIComponent(escape(atob(locResult.content))));
+                const locResult = await locResponse.json(); window.locationFileSha = locResult.sha; window.appLocations = JSON.parse(decodeURIComponent(escape(atob(locResult.content))));
             }
-
+            // Load Categories
             const catResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/dropdowns/categories.json`, { headers: { 'Authorization': `token ${token}` } });
             if (catResponse.ok) {
-                const catResult = await catResponse.json();
-                window.categoryFileSha = catResult.sha;
-                window.appCategories = JSON.parse(decodeURIComponent(escape(atob(catResult.content))));
+                const catResult = await catResponse.json(); window.categoryFileSha = catResult.sha; window.appCategories = JSON.parse(decodeURIComponent(escape(atob(catResult.content))));
             }
+            // Load Lights (NEW)
+            const lightsResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/lights.json`, { headers: { 'Authorization': `token ${token}` } });
+            if (lightsResponse.ok) {
+                const lightsResult = await lightsResponse.json(); window.lightsFileSha = lightsResult.sha; window.lightsData = JSON.parse(decodeURIComponent(escape(atob(lightsResult.content))));
+            } else if (lightsResponse.status === 404) {
+                window.lightsData = { fixtures: [] }; // File doesn't exist yet, start fresh
+            }
+
         } else {
             const dataResponse = await fetch('./data.json'); window.appData = await dataResponse.json();
             const locResponse = await fetch('./dropdowns/locations.json'); window.appLocations = await locResponse.json();
             const catResponse = await fetch('./dropdowns/categories.json'); window.appCategories = await catResponse.json();
+            
+            // Try fetching local lights.json, handle missing file gracefully
+            try { const lightsResp = await fetch('./lights.json'); if(lightsResp.ok) window.lightsData = await lightsResp.json(); } catch(e) { window.lightsData = { fixtures: [] }; }
         }
         
         window.populateLocationDropdown();
@@ -349,14 +365,15 @@ window.renderAllViews = function() {
     if(window.renderDashboard) window.renderDashboard();
     if(window.renderTimeline) window.renderTimeline();
     if(window.renderCategory) window.renderCategory();
+    if(window.renderLights) window.renderLights(); // NEW
     if(window.renderAllTasks) window.renderAllTasks();
     if(window.renderSettings) window.renderSettings();
 };
 
 // ==========================================
-// 8. FORM SUBMISSIONS
+// 8. FORM SUBMISSIONS (Tasks - Existing)
 // ==========================================
-document.getElementById('itemForm').addEventListener('submit', async function(e) {
+document.getElementById('itemForm').addEventListener('submit', async function(e) { /* ... existing save code ... */ 
     e.preventDefault();
     const idToEdit = document.getElementById('itemId').value;
     const name = document.getElementById('itemName').value;
@@ -368,57 +385,34 @@ document.getElementById('itemForm').addEventListener('submit', async function(e)
     if (idToEdit) {
         const index = window.appData.items.findIndex(i => i.id === idToEdit);
         if (index > -1) {
-            window.appData.items[index].name = name;
-            window.appData.items[index].location = location;
-            window.appData.items[index].category = category;
-            window.appData.items[index].frequency_months = frequency;
-            
+            window.appData.items[index].name = name; window.appData.items[index].location = location;
+            window.appData.items[index].category = category; window.appData.items[index].frequency_months = frequency;
             if (lastCompletedDate) {
                 if (window.appData.items[index].history && window.appData.items[index].history.length > 0) {
                     window.appData.items[index].history[window.appData.items[index].history.length - 1].date_completed = lastCompletedDate;
-                } else {
-                    window.appData.items[index].history = [{ date_completed: lastCompletedDate, notes: "Added via edit", cost: 0 }];
-                }
+                } else { window.appData.items[index].history = [{ date_completed: lastCompletedDate, notes: "Added via edit", cost: 0 }]; }
                 window.appData.items[index].next_due = window.calculateNextDue(lastCompletedDate, frequency);
-            } else {
-                window.appData.items[index].history = [];
-                window.appData.items[index].next_due = new Date().toISOString().split('T')[0];
-            }
+            } else { window.appData.items[index].history = []; window.appData.items[index].next_due = new Date().toISOString().split('T')[0]; }
         }
     } else {
         const historyArray = lastCompletedDate ? [{ date_completed: lastCompletedDate, notes: "Initial entry", cost: 0 }] : [];
         const nextDue = lastCompletedDate ? window.calculateNextDue(lastCompletedDate, frequency) : new Date().toISOString().split('T')[0];
-        const newItem = {
-            id: 'item-' + Date.now(), name: name, location: location, category: category,
-            frequency_months: frequency, next_due: nextDue, history: historyArray
-        };
+        const newItem = { id: 'item-' + Date.now(), name: name, location: location, category: category, frequency_months: frequency, next_due: nextDue, history: historyArray };
         window.appData.items.push(newItem);
     }
-
-    window.closeModal('itemModal');
-    window.renderAllViews();
-    await window.saveToGitHub(); 
+    window.closeModal('itemModal'); window.renderAllViews(); await window.saveToGitHub(); 
 });
 
-document.getElementById('logForm').addEventListener('submit', async function(e) {
+document.getElementById('logForm').addEventListener('submit', async function(e) { /* ... existing log code ... */ 
     e.preventDefault();
     const id = document.getElementById('logItemId').value;
     const dateCompleted = document.getElementById('logDate').value;
     const cost = parseFloat(document.getElementById('logCost').value) || 0;
-    
     const itemIndex = window.appData.items.findIndex(i => i.id === id);
-    
     if (itemIndex > -1) {
-        window.appData.items[itemIndex].history.push({
-            date_completed: dateCompleted, 
-            notes: document.getElementById('logNotes').value,
-            cost: cost
-        });
+        window.appData.items[itemIndex].history.push({ date_completed: dateCompleted, notes: document.getElementById('logNotes').value, cost: cost });
         window.appData.items[itemIndex].next_due = window.calculateNextDue(dateCompleted, window.appData.items[itemIndex].frequency_months);
-        
-        window.closeModal('logModal');
-        window.renderAllViews();
-        await window.saveToGitHub(); 
+        window.closeModal('logModal'); window.renderAllViews(); await window.saveToGitHub(); 
     }
 });
 
@@ -430,6 +424,7 @@ window.addEventListener('load', function() {
     if (window.initDashboard) window.initDashboard();
     if (window.initTimeline) window.initTimeline();
     if (window.initCategory) window.initCategory();
+    if (window.initLights) window.initLights(); // NEW
     if (window.initAllTasks) window.initAllTasks();
     if (window.initSettings) window.initSettings();
 
@@ -437,10 +432,9 @@ window.addEventListener('load', function() {
 
     setTimeout(() => {
         const initialHash = window.location.hash.replace('#', '') || 'dashboard';
-        const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'all': 'tab-all', 'settings': 'tab-settings' };
+        const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'lights': 'tab-lights', 'all': 'tab-all', 'settings': 'tab-settings' };
         if (reverseMap[initialHash]) {
             window.switchTab(reverseMap[initialHash]);
         }
     }, 50);
-
 });
