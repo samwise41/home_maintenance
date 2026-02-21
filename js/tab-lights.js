@@ -7,36 +7,69 @@ window.initLights = function() {
         <div id="lights-list"><p>Loading fixtures...</p></div>
     `;
 
-    // Handle Fixture Form Submission
+    // Handle Fixture Form Submission (Add or Edit)
     document.getElementById('fixtureForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         
+        const fixtureId = document.getElementById('fixtureId').value;
         const fixtureName = document.getElementById('fixtureName').value;
         const fixtureLocation = document.getElementById('fixtureLocation').value;
-        const fixtureBulbType = document.getElementById('fixtureBulbType').value;
         
+        // Grab existing fixture if editing so we don't lose bulb history
+        let existingFixture = null;
+        if(fixtureId) {
+            existingFixture = window.lightsData.fixtures.find(f => f.id === fixtureId);
+        }
+
         // Gather dynamic bulbs
-        const bulbInputs = document.querySelectorAll('.bulb-slot-input');
+        const bulbRows = document.querySelectorAll('.bulb-row');
         const bulbs = [];
-        bulbInputs.forEach((input, index) => {
-            if(input.value.trim() !== "") {
+        
+        bulbRows.forEach((row, index) => {
+            const idInput = row.querySelector('.bulb-id-input').value;
+            const posInput = row.querySelector('.bulb-pos-input').value.trim();
+            const typeInput = row.querySelector('.bulb-type-input').value.trim();
+            
+            if(posInput !== "" && typeInput !== "") {
+                let history = [];
+                let newBulbId = idInput;
+                
+                // If editing an existing bulb, copy over its old history
+                if(existingFixture && idInput) {
+                    const existingBulb = existingFixture.bulbs.find(b => b.id === idInput);
+                    if(existingBulb) {
+                        history = existingBulb.history;
+                    }
+                } else {
+                    // It's a brand new bulb slot added to the fixture
+                    newBulbId = 'bulb-' + Date.now() + '-' + index;
+                }
+                
                 bulbs.push({
-                    id: 'bulb-' + Date.now() + '-' + index,
-                    position: input.value.trim(),
-                    history: []
+                    id: newBulbId,
+                    position: posInput,
+                    bulb_type: typeInput,
+                    history: history
                 });
             }
         });
 
-        const newFixture = {
-            id: 'fixture-' + Date.now(),
-            name: fixtureName,
-            location: fixtureLocation,
-            default_bulb_type: fixtureBulbType,
-            bulbs: bulbs
-        };
+        if (fixtureId && existingFixture) {
+            // Update existing
+            existingFixture.name = fixtureName;
+            existingFixture.location = fixtureLocation;
+            existingFixture.bulbs = bulbs;
+        } else {
+            // Create new
+            const newFixture = {
+                id: 'fixture-' + Date.now(),
+                name: fixtureName,
+                location: fixtureLocation,
+                bulbs: bulbs
+            };
+            window.lightsData.fixtures.push(newFixture);
+        }
 
-        window.lightsData.fixtures.push(newFixture);
         window.closeModal('fixtureModal');
         window.renderLights();
         await window.saveLightsToGitHub();
@@ -74,32 +107,73 @@ window.initLights = function() {
 // UI Controllers for the Form
 window.openFixtureModal = function() {
     document.getElementById('fixtureForm').reset();
-    document.getElementById('bulbInputsContainer').innerHTML = ''; // clear slots
+    document.getElementById('fixtureId').value = "";
+    document.getElementById('fixtureModalTitle').innerText = "Add New Fixture";
+    document.getElementById('deleteFixtureBtn').style.display = "none";
+    document.getElementById('bulbInputsContainer').innerHTML = ''; 
+    
     window.populateLocationDropdown();
-    window.addBulbInput('Bulb 1'); // Add one default slot
+    window.addBulbInput(); // Add one blank slot by default
     document.getElementById('fixtureModal').style.display = "block";
 };
 
-window.addBulbInput = function(placeholder = "e.g., North Bulb, Middle, Left") {
+window.openEditFixtureModal = function(id) {
+    const fixture = window.lightsData.fixtures.find(f => f.id === id);
+    if (!fixture) return;
+
+    document.getElementById('fixtureForm').reset();
+    document.getElementById('fixtureId').value = fixture.id;
+    document.getElementById('fixtureModalTitle').innerText = "Edit Fixture";
+    document.getElementById('fixtureName').value = fixture.name;
+    document.getElementById('deleteFixtureBtn').style.display = "block";
+    
+    window.populateLocationDropdown();
+    const locSelect = document.getElementById('fixtureLocation');
+    // Handle legacy locations not in dropdown
+    if (fixture.location && !window.appLocations.includes(fixture.location)) {
+        const opt = document.createElement('option');
+        opt.value = fixture.location;
+        opt.innerText = fixture.location + " (Legacy)";
+        locSelect.appendChild(opt);
+    }
+    locSelect.value = fixture.location || "";
+
+    // Populate bulbs
+    document.getElementById('bulbInputsContainer').innerHTML = ''; 
+    fixture.bulbs.forEach(bulb => {
+        window.addBulbInput(bulb.position, bulb.bulb_type, bulb.id);
+    });
+
+    document.getElementById('fixtureModal').style.display = "block";
+};
+
+window.deleteFixture = async function() {
+    const id = document.getElementById('fixtureId').value;
+    if (!id) return;
+    if (!confirm("Are you sure you want to delete this fixture? All bulb history will be lost.")) return; 
+    
+    window.lightsData.fixtures = window.lightsData.fixtures.filter(f => f.id !== id);
+    window.closeModal('fixtureModal');
+    window.renderLights();
+    await window.saveLightsToGitHub();
+};
+
+window.addBulbInput = function(pos = "", type = "", id = "") {
     const container = document.getElementById('bulbInputsContainer');
     const inputDiv = document.createElement('div');
+    inputDiv.className = 'bulb-row';
     inputDiv.style.display = "flex";
-    inputDiv.style.gap = "10px";
+    inputDiv.style.gap = "8px";
+    inputDiv.style.marginBottom = "5px";
     
-    const input = document.createElement('input');
-    input.type = "text";
-    input.className = "bulb-slot-input";
-    input.placeholder = placeholder;
-    input.required = true;
-
-    const delBtn = document.createElement('button');
-    delBtn.type = "button";
-    delBtn.className = "btn-danger btn-sm";
-    delBtn.innerText = "X";
-    delBtn.onclick = function() { container.removeChild(inputDiv); };
-
-    inputDiv.appendChild(input);
-    inputDiv.appendChild(delBtn);
+    // Inject two inputs per row (position and type), plus a hidden ID field so we don't lose history on edit
+    inputDiv.innerHTML = `
+        <input type="hidden" class="bulb-id-input" value="${id}">
+        <input type="text" class="bulb-pos-input" placeholder="Position (e.g., North)" style="flex: 1;" value="${pos}" required>
+        <input type="text" class="bulb-type-input" placeholder="Type (e.g., A19 60W)" style="flex: 1;" value="${type}" required>
+        <button type="button" class="btn-danger btn-sm" onclick="this.parentElement.remove()">X</button>
+    `;
+    
     container.appendChild(inputDiv);
 };
 
@@ -156,7 +230,7 @@ window.renderLights = function() {
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-weight: bold; color: var(--text-main); font-size: 0.95em;">💡 ${bulb.position}</div>
-                            <div style="font-size: 0.85em; color: var(--text-light);">${lastReplacedTxt}</div>
+                            <div style="font-size: 0.85em; color: var(--text-light);">Type: <strong>${bulb.bulb_type || 'Unknown'}</strong> | ${lastReplacedTxt}</div>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <button class="btn-outline btn-sm" onclick="window.toggleBulbHistory('${bulb.id}')">🕒 History</button>
@@ -173,11 +247,12 @@ window.renderLights = function() {
         const card = document.createElement('div');
         card.className = 'item-card';
         card.innerHTML = `
-            <div class="card-header" style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+            <div class="card-header" style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
                     <h3 style="margin: 0; color: var(--text-main);">${fixture.name}</h3>
-                    <div style="font-size: 0.85em; color: var(--text-light); margin-top: 4px;">📍 ${fixture.location} | Type: <strong>${fixture.default_bulb_type}</strong></div>
+                    <div style="font-size: 0.85em; color: var(--text-light); margin-top: 4px;">📍 ${fixture.location}</div>
                 </div>
+                <button class="btn-outline btn-sm" onclick="window.openEditFixtureModal('${fixture.id}')">✏️ Edit</button>
             </div>
             <div>
                 ${bulbHtml}
