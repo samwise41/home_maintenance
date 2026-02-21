@@ -1,5 +1,21 @@
 {
   "fixtures": [
-
+    {
+      "id": "fixture-1771710449764",
+      "name": "Laundry Room South",
+      "location": "Laundry Room",
+      "bulbs": [
+        {
+          "id": "bulb-1771710449764-0",
+          "position": "East",
+          "history": []
+        },
+        {
+          "id": "bulb-1771710449764-1",
+          "position": "West",
+          "history": []
+        }
+      ]
+    }
   ]
 }
