@@ -739,6 +739,23 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771714403135",
+      "name": "Master Bathroom Toiler Room",
+      "location": "Bathroom",
+      "bulbs": [
+        {
+          "id": "bulb-1771714403135-0",
+          "position": "East",
+          "history": []
+        },
+        {
+          "id": "bulb-1771714403135-1",
+          "position": "West",
+          "history": []
+        }
+      ]
     }
   ]
 }
