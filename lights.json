@@ -1,52 +1,5 @@
 {
   "fixtures": [
-    {
-      "id": "fixture-1771709550368",
-      "name": "Laundry South",
-      "location": "Laundry Room",
-      "default_bulb_type": "GE Reveal LED",
-      "bulbs": [
-        {
-          "id": "bulb-1771709550367-0",
-          "position": "West",
-          "history": [
-            {
-              "date_replaced": "0025-12-12",
-              "cost": 0,
-              "notes": ""
-            }
-          ]
-        },
-        {
-          "id": "bulb-1771709550368-1",
-          "position": "East",
-          "history": [
-            {
-              "date_replaced": "2025-12-12",
-              "cost": 0,
-              "notes": ""
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "fixture-1771709776987",
-      "name": "Laundry North",
-      "location": "Laundry Room",
-      "default_bulb_type": "GE Reveal",
-      "bulbs": [
-        {
-          "id": "bulb-1771709776987-0",
-          "position": "East",
-          "history": []
-        },
-        {
-          "id": "bulb-1771709776987-1",
-          "position": "West",
-          "history": []
-        }
-      ]
-    }
+    
   ]
 }
