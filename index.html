@@ -131,8 +131,16 @@
             <input type="hidden" id="bulbLogBulbId">
             <input type="hidden" id="bulbLogHistoryIndex">
             
-            <label>Date Replaced:</label>
-            <input type="date" id="bulbLogDate" required>
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Date Replaced:</label>
+                    <input type="date" id="bulbLogDate" required>
+                </div>
+                <div style="flex: 1;">
+                    <label>Purchase Date (Optional):</label>
+                    <input type="date" id="bulbLogPurchaseDate">
+                </div>
+            </div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                 <div>
