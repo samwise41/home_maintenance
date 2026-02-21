@@ -218,7 +218,7 @@
           "position": "Master East #1",
           "history": [
             {
-              "date_replaced": "2026-02-09",
+              "date_replaced": "2025-12-12",
               "brand": "GE",
               "bulb_name": "Reveal",
               "size": "ST19",
@@ -236,7 +236,7 @@
           "position": "Master East #2",
           "history": [
             {
-              "date_replaced": "2026-02-09",
+              "date_replaced": "2025-12-12",
               "brand": "GE",
               "bulb_name": "Reveal",
               "size": "ST19",
@@ -254,7 +254,7 @@
           "position": "Master East #3",
           "history": [
             {
-              "date_replaced": "2026-02-09",
+              "date_replaced": "2025-12-12",
               "brand": "GE",
               "bulb_name": "Reveal",
               "size": "ST19",
@@ -272,7 +272,7 @@
           "position": "Master East #4",
           "history": [
             {
-              "date_replaced": "2026-02-09",
+              "date_replaced": "2025-12-12",
               "brand": "GE",
               "bulb_name": "Reveal",
               "size": "ST19",
@@ -297,7 +297,7 @@
           "position": "Master West #1",
           "history": [
             {
-              "date_replaced": "2026-02-09",
+              "date_replaced": "2025-12-12",
               "brand": "GE",
               "bulb_name": "Reveal",
               "size": "ST19",
@@ -315,7 +315,7 @@
           "position": "Master West #2",
           "history": [
             {
-              "date_replaced": "2026-02-09",
+              "date_replaced": "2025-12-12",
               "brand": "GE",
               "bulb_name": "Reveal",
               "size": "ST19",
@@ -333,7 +333,7 @@
           "position": "Master West #3",
           "history": [
             {
-              "date_replaced": "2026-02-09",
+              "date_replaced": "2025-12-12",
               "brand": "GE",
               "bulb_name": "Reveal",
               "size": "ST19",
@@ -562,7 +562,7 @@
           "id": "bulb-1771712696517-0",
           "position": "East",
           "history": [{
-              "date_replaced": "2025-12-12",
+              "date_replaced": "2026-02-08",
               "brand": "GE",
               "bulb_name": "Reveal",
               "size": "A19",
@@ -580,7 +580,7 @@
           "position": "West",
           "history": [
             {
-              "date_replaced": "2025-12-12",
+              "date_replaced": "2026-02-08",
               "brand": "GE",
               "bulb_name": "Reveal",
               "size": "A19",
