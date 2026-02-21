@@ -1,3 +1,22 @@
 {
-  "fixtures": []
+  "fixtures": [
+    {
+      "id": "fixture-1771709550368",
+      "name": "Laundry South",
+      "location": "Laundry Room",
+      "default_bulb_type": "GE Reveal LED",
+      "bulbs": [
+        {
+          "id": "bulb-1771709550367-0",
+          "position": "West",
+          "history": []
+        },
+        {
+          "id": "bulb-1771709550368-1",
+          "position": "East",
+          "history": []
+        }
+      ]
+    }
+  ]
 }
