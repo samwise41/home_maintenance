@@ -436,6 +436,23 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1771712622506",
+      "name": "Basement Bathroom",
+      "location": "Bathroom",
+      "bulbs": [
+        {
+          "id": "bulb-1771712622506-0",
+          "position": "South",
+          "history": []
+        },
+        {
+          "id": "bulb-1771712622506-1",
+          "position": "North",
+          "history": []
+        }
+      ]
     }
   ]
 }
