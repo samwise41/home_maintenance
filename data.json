@@ -243,15 +243,6 @@
       "history": []
     },
     {
-      "id": "carpet-basement",
-      "name": "Carpet Cleaning",
-      "location": "Basement Family Room",
-      "category": "Flooring",
-      "frequency_months": 6,
-      "next_due": "2026-02-16",
-      "history": []
-    },
-    {
       "id": "item-1771707221891",
       "name": "Clean cat waterer and replace filter",
       "location": "Kitchen",
@@ -306,6 +297,21 @@
         {
           "date_completed": "2025-12-12",
           "notes": "Initial entry"
+        }
+      ]
+    },
+    {
+      "id": "carpet-basement",
+      "name": "Carpet Cleaning",
+      "location": "Basement Family Room",
+      "category": "Flooring",
+      "frequency_months": 6,
+      "next_due": "2026-06-12",
+      "history": [
+        {
+          "date_completed": "2025-12-13",
+          "notes": "Added via edit",
+          "cost": 0
         }
       ]
     },
