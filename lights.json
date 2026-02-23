@@ -789,5 +789,12 @@
       ]
     }
   ],
-  "receipts": []
+  "receipts": [
+    {
+      "date": "2025-12-12",
+      "notes": "Lowes GE",
+      "path": "receipts/lights/receipt_2025-12-12_1771873895822.pdf",
+      "id": "receipt-1771873897106"
+    }
+  ]
 }
