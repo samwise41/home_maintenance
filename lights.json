@@ -788,5 +788,13 @@
         }
       ]
     }
+  ],
+  "receipts": [
+    {
+      "date": "2026-02-23",
+      "notes": "Lowes GE Lights",
+      "path": "receipts/lights/receipt_1771873371673.pdf",
+      "id": "receipt-1771873373103"
+    }
   ]
 }
