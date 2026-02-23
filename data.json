@@ -243,6 +243,15 @@
       "history": []
     },
     {
+      "id": "item-1771858461974",
+      "name": "Get Fireplace Cleaned and tuned",
+      "location": "Basement",
+      "category": "HVAC",
+      "frequency_months": 24,
+      "next_due": "2026-02-23",
+      "history": []
+    },
+    {
       "id": "item-1771707221891",
       "name": "Clean cat waterer and replace filter",
       "location": "Kitchen",
