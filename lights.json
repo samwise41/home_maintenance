@@ -792,13 +792,13 @@
   "receipts": [
     {
       "date": "2026-01-19",
-      "notes": "Lowes GE Lights",
+      "notes": "Lowes GE Lights ST19",
       "path": "receipts/lights/receipt_2026-01-19_1771877412249.pdf",
       "id": "receipt-1771877413585"
     },
     {
       "date": "2025-12-12",
-      "notes": "Lowes GE",
+      "notes": "Lowes GE A19 and ST19",
       "path": "receipts/lights/receipt_2025-12-12_1771873895822.pdf",
       "id": "receipt-1771873897106"
     }
