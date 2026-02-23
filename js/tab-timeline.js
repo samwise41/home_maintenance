@@ -2,7 +2,10 @@ window.initTimeline = function() {
     document.getElementById('tab-timeline').innerHTML = `
         <div class="header">
             <h2>By Due Date</h2>
-            <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+            <div class="header-actions">
+                <input type="text" id="search-timeline" class="search-input" placeholder="🔍 Search tasks..." oninput="window.renderTimeline()">
+                <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+            </div>
         </div>
         <div id="timeline-list"><p>Loading tasks...</p></div>
     `;
@@ -11,7 +14,6 @@ window.initTimeline = function() {
 window.toggleTimelineCard = function(id) {
     const details = document.getElementById('details-' + id);
     const chevron = document.getElementById('chevron-' + id);
-    
     if (details.style.display === 'none') {
         details.style.display = 'block';
         chevron.style.transform = 'rotate(180deg)';
@@ -26,6 +28,9 @@ window.renderTimeline = function() {
     if (!container) return; 
     container.innerHTML = '';
     
+    // Grab search query
+    const query = document.getElementById('search-timeline') ? document.getElementById('search-timeline').value.toLowerCase() : '';
+    
     const groups = {
         overdue: { title: "🚨 Overdue", items: [] },
         thisMonth: { title: "📅 Due within 30 days", items: [] },
@@ -36,12 +41,19 @@ window.renderTimeline = function() {
     const today = new Date();
     today.setHours(0,0,0,0);
 
-    const sortedItems = [...window.appData.items].sort((a, b) => new Date(a.next_due) - new Date(b.next_due));
+    // Filter list based on search bar
+    const filteredItems = window.appData.items.filter(item => {
+        if (!query) return true;
+        return (item.name || '').toLowerCase().includes(query) || 
+               (item.location || '').toLowerCase().includes(query) || 
+               (item.category || '').toLowerCase().includes(query);
+    });
+
+    const sortedItems = [...filteredItems].sort((a, b) => new Date(a.next_due) - new Date(b.next_due));
 
     sortedItems.forEach(item => {
         const nextDue = new Date(item.next_due);
         const diffDays = Math.ceil((nextDue - today) / (1000 * 60 * 60 * 24)); 
-        
         if (diffDays < 0) groups.overdue.items.push(item);
         else if (diffDays <= 30) groups.thisMonth.items.push(item);
         else if (diffDays <= 60) groups.nextMonth.items.push(item);
@@ -95,13 +107,9 @@ window.renderTimeline = function() {
                 </div>
             `;
         });
-        
         html += `</div>`;
         groupHTML.innerHTML = html;
         container.appendChild(groupHTML);
     }
-    
-    if (sortedItems.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-light);">No tasks found.</p>';
-    }
+    if (sortedItems.length === 0) container.innerHTML = '<p style="text-align: center; color: var(--text-light);">No tasks found.</p>';
 };
