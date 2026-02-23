@@ -2,7 +2,10 @@ window.initAllTasks = function() {
     document.getElementById('tab-all').innerHTML = `
         <div class="header">
             <h2>All Maintenance Tasks</h2>
-            <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+            <div class="header-actions">
+                <input type="text" id="search-tasks" class="search-input" placeholder="🔍 Search tasks..." oninput="window.renderAllTasks()">
+                <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+            </div>
         </div>
         <div id="all-tasks-list"><p>Loading your tasks...</p></div>
     `;
@@ -13,9 +16,17 @@ window.renderAllTasks = function() {
     if (!allList) return;
     allList.innerHTML = ''; 
 
-    window.appData.items.sort((a, b) => new Date(a.next_due) - new Date(b.next_due));
+    const query = document.getElementById('search-tasks') ? document.getElementById('search-tasks').value.toLowerCase() : '';
+    const filteredItems = window.appData.items.filter(item => {
+        if (!query) return true;
+        return (item.name || '').toLowerCase().includes(query) || 
+               (item.location || '').toLowerCase().includes(query) || 
+               (item.category || '').toLowerCase().includes(query);
+    });
 
-    window.appData.items.forEach(item => {
+    const sortedItems = [...filteredItems].sort((a, b) => new Date(a.next_due) - new Date(b.next_due));
+
+    sortedItems.forEach(item => {
         const status = window.getStatus(item.next_due);
         const formattedDate = window.formatDate(item.next_due);
         const displayLocation = item.location ? item.location : "Location not specified";
@@ -39,7 +50,7 @@ window.renderAllTasks = function() {
         allList.appendChild(card);
     });
 
-    if (window.appData.items.length === 0) {
-        allList.innerHTML = '<p style="text-align: center; color: var(--text-light);">No tasks yet. Click Add New Item to get started.</p>';
+    if (sortedItems.length === 0) {
+        allList.innerHTML = '<p style="text-align: center; color: var(--text-light);">No tasks found.</p>';
     }
 };
