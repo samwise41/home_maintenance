@@ -4,12 +4,14 @@ window.initLights = function() {
             <h2>💡 Lighting & Fixtures</h2>
             <div class="header-actions">
                 <input type="text" id="search-lights" class="search-input" placeholder="🔍 Search fixtures or bulbs..." oninput="window.renderLights()">
-                <button class="btn-primary" onclick="window.openFixtureModal()">+ Add New Fixture</button>
+                <button class="btn-outline" onclick="window.openReceiptsModal()" style="background: white;">🧾 Receipts</button>
+                <button class="btn-primary" onclick="window.openFixtureModal()">+ Add Fixture</button>
             </div>
         </div>
         <div id="lights-list"><p>Loading fixtures...</p></div>
     `;
 
+    // Handle Fixture Form Submission
     document.getElementById('fixtureForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const fixtureId = document.getElementById('fixtureId').value;
@@ -57,6 +59,7 @@ window.initLights = function() {
         await window.saveLightsToGitHub();
     });
 
+    // Handle Bulb Replacement Log
     document.getElementById('bulbLogForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const fixId = document.getElementById('bulbLogFixtureId').value;
@@ -75,30 +78,6 @@ window.initLights = function() {
         const logCost = parseFloat(document.getElementById('bulbLogCost').value) || 0;
         const logNotes = document.getElementById('bulbLogNotes').value;
 
-        // --- NEW: Handle Receipt Upload ---
-        const fileInput = document.getElementById('bulbLogReceiptFile');
-        let receiptPath = document.getElementById('bulbLogExistingReceipt').value;
-
-        if (fileInput.files.length > 0) {
-            window.showStatusMsg("⏳ Uploading receipt securely to GitHub...", "blue");
-            try {
-                const file = fileInput.files[0];
-                const ext = file.name.split('.').pop();
-                const filename = `receipt_${Date.now()}.${ext}`;
-                const path = `receipts/lights/${filename}`; // Stores in a neat folder
-                
-                const base64Data = await window.getBase64(file);
-                const base64Content = base64Data.split(',')[1]; // Strip the 'data:image/png;base64,' prefix
-                
-                await window.uploadFileToGitHub(path, base64Content);
-                receiptPath = path; // Save the path so we can link to it later
-                window.showStatusMsg("✅ Receipt Uploaded!", "green");
-            } catch (err) {
-                window.showStatusMsg("❌ Error uploading receipt.", "red");
-                return; // Stop the save so you don't lose your data if the upload fails
-            }
-        }
-
         const fixture = window.lightsData.fixtures.find(f => f.id === fixId);
         if(fixture) {
             const bulb = fixture.bulbs.find(b => b.id === bulbId);
@@ -114,8 +93,7 @@ window.initLights = function() {
                     brightness: logBrightness, 
                     warranty: logWarranty, 
                     cost: logCost, 
-                    notes: logNotes,
-                    receipt_path: receiptPath // Attach receipt path to history
+                    notes: logNotes
                 };
 
                 if (historyIndex !== "") {
@@ -132,8 +110,53 @@ window.initLights = function() {
         window.renderLights();
         await window.saveLightsToGitHub();
     });
+
+    // NEW: Handle Central Receipt Upload
+    document.getElementById('receiptForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const rDate = document.getElementById('receiptDate').value;
+        const rNotes = document.getElementById('receiptNotes').value;
+        const fileInput = document.getElementById('receiptFile');
+
+        if (fileInput.files.length === 0) return;
+
+        window.showStatusMsg("⏳ Uploading receipt to GitHub...", "blue");
+        
+        try {
+            const file = fileInput.files[0];
+            const ext = file.name.split('.').pop();
+            const filename = `receipt_${Date.now()}.${ext}`;
+            const path = `receipts/lights/${filename}`; 
+            
+            const base64Data = await window.getBase64(file);
+            const base64Content = base64Data.split(',')[1]; 
+            
+            await window.uploadFileToGitHub(path, base64Content);
+            
+            if(!window.lightsData.receipts) window.lightsData.receipts = [];
+            
+            window.lightsData.receipts.push({
+                date: rDate,
+                notes: rNotes,
+                path: path,
+                id: 'receipt-' + Date.now()
+            });
+
+            // Sort receipts newest first
+            window.lightsData.receipts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            document.getElementById('receiptForm').reset();
+            window.renderReceipts();
+            await window.saveLightsToGitHub();
+            window.showStatusMsg("✅ Receipt Saved!", "green");
+
+        } catch (err) {
+            window.showStatusMsg("❌ Error uploading receipt.", "red");
+        }
+    });
 };
 
+// Fixture UI Modals
 window.openFixtureModal = function() {
     document.getElementById('fixtureForm').reset();
     document.getElementById('fixtureId').value = "";
@@ -192,6 +215,7 @@ window.addBulbInput = function(pos = "", id = "") {
     container.appendChild(inputDiv);
 };
 
+// Bulb Replacement UI Modals
 window.openBulbLogModal = function(fixtureId, bulbId, positionName, fixtureName, lastBrand, lastBulbName, lastSize, lastWattage, lastColor, lastBrightness, lastWarranty, lastPurchaseDate) {
     document.getElementById('bulbLogForm').reset();
     document.getElementById('bulbLogModalTitle').innerText = "🔌 Replace Bulb";
@@ -212,11 +236,6 @@ window.openBulbLogModal = function(fixtureId, bulbId, positionName, fixtureName,
     document.getElementById('bulbLogColor').value = lastColor || "";
     document.getElementById('bulbLogBrightness').value = lastBrightness || "";
     document.getElementById('bulbLogWarranty').value = lastWarranty || "";
-    
-    // Clear receipt fields so they don't carry over to a new replacement
-    document.getElementById('bulbLogReceiptFile').value = "";
-    document.getElementById('bulbLogExistingReceipt').value = "";
-    document.getElementById('bulbLogExistingReceiptContainer').innerHTML = "";
     
     document.getElementById('bulbLogModal').style.display = "block";
 };
@@ -251,15 +270,6 @@ window.editBulbHistory = function(fixtureId, bulbId, historyIndex) {
     document.getElementById('bulbLogCost').value = entry.cost || "";
     document.getElementById('bulbLogNotes').value = entry.notes || "";
     
-    // Load existing receipt if present
-    document.getElementById('bulbLogReceiptFile').value = "";
-    document.getElementById('bulbLogExistingReceipt').value = entry.receipt_path || "";
-    if (entry.receipt_path) {
-        document.getElementById('bulbLogExistingReceiptContainer').innerHTML = `Current Receipt: <a href="${entry.receipt_path}" target="_blank" style="color: var(--primary-btn);">🧾 View Uploaded File</a>`;
-    } else {
-        document.getElementById('bulbLogExistingReceiptContainer').innerHTML = "";
-    }
-    
     document.getElementById('bulbLogModal').style.display = "block";
 };
 
@@ -288,6 +298,48 @@ window.toggleBulbHistory = function(bulbId) {
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 };
 
+// NEW: Central Receipt UI Controllers
+window.openReceiptsModal = function() {
+    document.getElementById('receiptForm').reset();
+    document.getElementById('receiptDate').value = new Date().toISOString().split('T')[0];
+    window.renderReceipts();
+    document.getElementById('receiptsModal').style.display = 'block';
+};
+
+window.renderReceipts = function() {
+    const container = document.getElementById('receiptsListContainer');
+    container.innerHTML = '';
+
+    if(!window.lightsData.receipts || window.lightsData.receipts.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding: 20px 0; color: var(--text-light);">No receipts uploaded yet.</p>';
+        return;
+    }
+
+    window.lightsData.receipts.forEach((r, index) => {
+        const div = document.createElement('div');
+        div.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px 10px; border-bottom: 1px solid #eee;";
+        div.innerHTML = `
+            <div>
+                <strong>${window.formatDate(r.date)}</strong>
+                <div style="font-size: 0.85em; color: var(--text-light); margin-top: 2px;">${r.notes}</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="${r.path}" target="_blank" class="btn-outline btn-sm" style="text-decoration: none; padding: 4px 10px;">🧾 View</a>
+                <button class="btn-danger btn-sm" onclick="window.deleteReceipt(${index})">🗑️</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+};
+
+window.deleteReceipt = async function(index) {
+    if(!confirm("Remove this receipt? (The file will remain safely in GitHub, but will be removed from this list)")) return;
+    window.lightsData.receipts.splice(index, 1);
+    window.renderReceipts();
+    await window.saveLightsToGitHub();
+};
+
+// Main Rendering Function
 window.renderLights = function() {
     const container = document.getElementById('lights-list');
     if (!container) return;
@@ -367,16 +419,12 @@ window.renderLights = function() {
                     const hDisplay = hParts ? hParts : 'Unknown';
                     const hPurchTxt = h.purchase_date ? ` (Purchased: ${window.formatDate(h.purchase_date)})` : "";
                     
-                    // NEW: Render the Receipt Link
-                    const hReceipt = h.receipt_path ? `<a href="${h.receipt_path}" target="_blank" style="color: var(--primary-btn); text-decoration: none; font-weight: bold; margin-top: 4px; display: inline-block;">🧾 View Receipt</a>` : "";
-                    
                     return `<div style="font-size: 0.85em; border-bottom: 1px dashed #ddd; padding: 6px 0; display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
                             <strong>${window.formatDate(h.date_replaced)}</strong><span style="color: #666; font-size: 0.9em;">${hPurchTxt}</span> 
                             <br><span style="color: var(--text-light);">${hDisplay}</span>
                             ${h.cost > 0 ? ` <strong>($${h.cost})</strong>` : ''} 
                             ${h.notes ? `<br><em>Notes: ${h.notes}</em>` : ''}
-                            ${hReceipt ? `<br>${hReceipt}` : ''}
                         </div>
                         <button class="btn-outline btn-sm" onclick="window.editBulbHistory('${fixture.id}', '${bulb.id}', ${index})" style="padding: 2px 6px; font-size: 0.8em;">✏️</button>
                     </div>`;
