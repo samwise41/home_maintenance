@@ -4,7 +4,8 @@
 window.appData = { items: [] };
 window.fileSha = ""; 
 
-window.lightsData = { fixtures: [] };
+// NEW: Added receipts array to the default state
+window.lightsData = { fixtures: [], receipts: [] };
 window.lightsFileSha = "";
 
 window.appLocations = [];
@@ -69,10 +70,8 @@ window.openAddModal = function() {
     document.getElementById('lastCompletedContainer').style.display = "block"; 
     document.getElementById('itemLastCompleted').value = ""; 
     document.getElementById('deleteBtn').style.display = "none"; 
-    
     window.populateLocationDropdown();
     window.populateCategoryDropdown();
-    
     document.getElementById('itemModal').style.display = "block";
 };
 
@@ -252,7 +251,6 @@ window.deleteCategory = async function(index) {
 // ==========================================
 // 6. GITHUB API SYNCING
 // ==========================================
-// --- NEW HELPER: Convert File to Base64 ---
 window.getBase64 = function(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -262,7 +260,6 @@ window.getBase64 = function(file) {
     });
 };
 
-// --- NEW HELPER: Upload File to GitHub ---
 window.uploadFileToGitHub = async function(path, base64Content) {
     const user = localStorage.getItem('ghUser'); 
     const repo = localStorage.getItem('ghRepo'); 
@@ -353,35 +350,42 @@ window.loadInitialData = async function() {
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
     try {
         if (user && repo && token) {
-            // Load Tasks
             const dataResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/data.json`, { headers: { 'Authorization': `token ${token}` } });
             if (dataResponse.ok) {
                 const dataResult = await dataResponse.json(); window.fileSha = dataResult.sha; window.appData = JSON.parse(decodeURIComponent(escape(atob(dataResult.content))));
             }
-            // Load Locations
+            
             const locResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/dropdowns/locations.json`, { headers: { 'Authorization': `token ${token}` } });
             if (locResponse.ok) {
                 const locResult = await locResponse.json(); window.locationFileSha = locResult.sha; window.appLocations = JSON.parse(decodeURIComponent(escape(atob(locResult.content))));
             }
-            // Load Categories
+
             const catResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/dropdowns/categories.json`, { headers: { 'Authorization': `token ${token}` } });
             if (catResponse.ok) {
                 const catResult = await catResponse.json(); window.categoryFileSha = catResult.sha; window.appCategories = JSON.parse(decodeURIComponent(escape(atob(catResult.content))));
             }
-            // Load Lights
+            
             const lightsResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/lights.json`, { headers: { 'Authorization': `token ${token}` } });
             if (lightsResponse.ok) {
-                const lightsResult = await lightsResponse.json(); window.lightsFileSha = lightsResult.sha; window.lightsData = JSON.parse(decodeURIComponent(escape(atob(lightsResult.content))));
+                const lightsResult = await lightsResponse.json(); 
+                window.lightsFileSha = lightsResult.sha; 
+                window.lightsData = JSON.parse(decodeURIComponent(escape(atob(lightsResult.content))));
+                if(!window.lightsData.receipts) window.lightsData.receipts = []; // Ensure array exists
             } else if (lightsResponse.status === 404) {
-                window.lightsData = { fixtures: [] }; 
+                window.lightsData = { fixtures: [], receipts: [] }; 
             }
 
         } else {
             const dataResponse = await fetch('./data.json'); window.appData = await dataResponse.json();
             const locResponse = await fetch('./dropdowns/locations.json'); window.appLocations = await locResponse.json();
             const catResponse = await fetch('./dropdowns/categories.json'); window.appCategories = await catResponse.json();
-            
-            try { const lightsResp = await fetch('./lights.json'); if(lightsResp.ok) window.lightsData = await lightsResp.json(); } catch(e) { window.lightsData = { fixtures: [] }; }
+            try { 
+                const lightsResp = await fetch('./lights.json'); 
+                if(lightsResp.ok) {
+                    window.lightsData = await lightsResp.json(); 
+                    if(!window.lightsData.receipts) window.lightsData.receipts = [];
+                }
+            } catch(e) { window.lightsData = { fixtures: [], receipts: [] }; }
         }
         
         window.populateLocationDropdown();
@@ -405,7 +409,7 @@ window.renderAllViews = function() {
 };
 
 // ==========================================
-// 8. FORM SUBMISSIONS (Tasks - Existing)
+// 8. FORM SUBMISSIONS
 // ==========================================
 document.getElementById('itemForm').addEventListener('submit', async function(e) { 
     e.preventDefault();
