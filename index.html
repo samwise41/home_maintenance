@@ -171,12 +171,18 @@
                     <label>Warranty (Years):</label>
                     <input type="number" step="0.1" id="bulbLogWarranty" placeholder="e.g., 3, 5">
                 </div>
+                <div>
+                    <label>Cost ($):</label>
+                    <input type="number" step="0.01" id="bulbLogCost" placeholder="0.00">
+                </div>
             </div>
             
-            <label style="margin-top: 10px;">Cost ($):</label>
-            <input type="number" step="0.01" id="bulbLogCost" placeholder="0.00">
+            <label style="margin-top: 10px;">Upload Receipt (Image or PDF):</label>
+            <input type="file" id="bulbLogReceiptFile" accept="image/*,application/pdf" style="padding: 8px; border: 1px solid #ccc; background: #fdfdfd; cursor: pointer;">
+            <input type="hidden" id="bulbLogExistingReceipt">
+            <div id="bulbLogExistingReceiptContainer" style="font-size: 0.85em; margin-top: 5px;"></div>
             
-            <label>Notes (Optional):</label>
+            <label style="margin-top: 5px;">Notes (Optional):</label>
             <textarea id="bulbLogNotes"></textarea>
             
             <div style="display: flex; gap: 10px; margin-top: 15px;">
