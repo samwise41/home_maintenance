@@ -2,9 +2,11 @@ window.chartInstances = {};
 
 window.initDashboard = function() {
     document.getElementById('tab-dashboard').innerHTML = `
-        <div class="header" style="border-bottom: 2px solid #eee; padding-bottom: 10px;">
+        <div class="header">
             <h2>📊 Dashboard Analytics</h2>
-            <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+            <div class="header-actions">
+                <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+            </div>
         </div>
         <div class="chart-grid">
             <div class="chart-card">
