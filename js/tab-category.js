@@ -2,7 +2,10 @@ window.initCategory = function() {
     document.getElementById('tab-category').innerHTML = `
         <div class="header">
             <h2>By Category</h2>
-            <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+            <div class="header-actions">
+                <input type="text" id="search-category" class="search-input" placeholder="🔍 Search tasks..." oninput="window.renderCategory()">
+                <button class="btn-primary" onclick="window.openAddModal()">+ Add New Item</button>
+            </div>
         </div>
         <div id="category-list"><p>Loading tasks...</p></div>
     `;
@@ -11,7 +14,6 @@ window.initCategory = function() {
 window.toggleCategoryCard = function(id) {
     const details = document.getElementById('cat-details-' + id);
     const chevron = document.getElementById('cat-chevron-' + id);
-    
     if (details.style.display === 'none') {
         details.style.display = 'block';
         chevron.style.transform = 'rotate(180deg)';
@@ -26,24 +28,26 @@ window.renderCategory = function() {
     if (!container) return; 
     container.innerHTML = '';
     
+    const query = document.getElementById('search-category') ? document.getElementById('search-category').value.toLowerCase() : '';
+    const filteredItems = window.appData.items.filter(item => {
+        if (!query) return true;
+        return (item.name || '').toLowerCase().includes(query) || 
+               (item.location || '').toLowerCase().includes(query) || 
+               (item.category || '').toLowerCase().includes(query);
+    });
+
     const groups = {};
-    
-    // Group tasks by their category
-    window.appData.items.forEach(item => {
+    filteredItems.forEach(item => {
         const cat = item.category || 'Other';
         if (!groups[cat]) groups[cat] = [];
         groups[cat].push(item);
     });
 
-    // Sort the keys alphabetically so categories are in order
     const sortedCategories = Object.keys(groups).sort();
-
     let hasTasks = false;
 
     sortedCategories.forEach(cat => {
-        // Sort items within the category chronologically
         const categoryItems = groups[cat].sort((a, b) => new Date(a.next_due) - new Date(b.next_due));
-        
         if (categoryItems.length === 0) return;
         hasTasks = true;
 
@@ -89,13 +93,10 @@ window.renderCategory = function() {
                 </div>
             `;
         });
-        
         html += `</div>`;
         groupHTML.innerHTML = html;
         container.appendChild(groupHTML);
     });
     
-    if (!hasTasks) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-light);">No tasks found.</p>';
-    }
+    if (!hasTasks) container.innerHTML = '<p style="text-align: center; color: var(--text-light);">No tasks found.</p>';
 };
