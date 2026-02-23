@@ -2,7 +2,10 @@ window.initLights = function() {
     document.getElementById('tab-lights').innerHTML = `
         <div class="header">
             <h2>💡 Lighting & Fixtures</h2>
-            <button class="btn-primary" onclick="window.openFixtureModal()">+ Add New Fixture</button>
+            <div class="header-actions">
+                <input type="text" id="search-lights" class="search-input" placeholder="🔍 Search fixtures or bulbs..." oninput="window.renderLights()">
+                <button class="btn-primary" onclick="window.openFixtureModal()">+ Add New Fixture</button>
+            </div>
         </div>
         <div id="lights-list"><p>Loading fixtures...</p></div>
     `;
@@ -63,7 +66,7 @@ window.initLights = function() {
         const historyIndex = document.getElementById('bulbLogHistoryIndex').value;
         
         const logDate = document.getElementById('bulbLogDate').value;
-        const logPurchaseDate = document.getElementById('bulbLogPurchaseDate').value; // NEW
+        const logPurchaseDate = document.getElementById('bulbLogPurchaseDate').value; 
         const logBrand = document.getElementById('bulbLogBrand').value.trim();
         const logBulbName = document.getElementById('bulbLogBulbName').value.trim();
         const logSize = document.getElementById('bulbLogSize').value.trim();
@@ -80,7 +83,7 @@ window.initLights = function() {
             if(bulb) {
                 const logEntry = {
                     date_replaced: logDate, 
-                    purchase_date: logPurchaseDate, // NEW
+                    purchase_date: logPurchaseDate, 
                     brand: logBrand, 
                     bulb_name: logBulbName,
                     size: logSize, 
@@ -93,14 +96,11 @@ window.initLights = function() {
                 };
 
                 if (historyIndex !== "") {
-                    // Updating an existing log entry
                     bulb.history[parseInt(historyIndex)] = logEntry;
                 } else {
-                    // Pushing a new log entry
                     bulb.history.push(logEntry);
                 }
                 
-                // Sort history newest first
                 bulb.history.sort((a, b) => new Date(b.date_replaced) - new Date(a.date_replaced));
             }
         }
@@ -111,7 +111,6 @@ window.initLights = function() {
     });
 };
 
-// UI Controllers for the Forms
 window.openFixtureModal = function() {
     document.getElementById('fixtureForm').reset();
     document.getElementById('fixtureId').value = "";
@@ -170,19 +169,18 @@ window.addBulbInput = function(pos = "", id = "") {
     container.appendChild(inputDiv);
 };
 
-// Opening modal for a NEW replacement (pre-filled with last bulb data)
 window.openBulbLogModal = function(fixtureId, bulbId, positionName, fixtureName, lastBrand, lastBulbName, lastSize, lastWattage, lastColor, lastBrightness, lastWarranty, lastPurchaseDate) {
     document.getElementById('bulbLogForm').reset();
     document.getElementById('bulbLogModalTitle').innerText = "🔌 Replace Bulb";
-    document.getElementById('deleteLogBtn').style.display = "none"; // Hide delete for new entries
+    document.getElementById('deleteLogBtn').style.display = "none"; 
     
     document.getElementById('bulbLogFixtureId').value = fixtureId;
     document.getElementById('bulbLogBulbId').value = bulbId;
-    document.getElementById('bulbLogHistoryIndex').value = ""; // Empty string indicates new entry
+    document.getElementById('bulbLogHistoryIndex').value = ""; 
     
     document.getElementById('bulbLogName').innerText = `${fixtureName} - ${positionName}`;
     document.getElementById('bulbLogDate').value = new Date().toISOString().split('T')[0];
-    document.getElementById('bulbLogPurchaseDate').value = lastPurchaseDate || ""; // Assume multi-pack
+    document.getElementById('bulbLogPurchaseDate').value = lastPurchaseDate || ""; 
     
     document.getElementById('bulbLogBrand').value = lastBrand || "";
     document.getElementById('bulbLogBulbName').value = lastBulbName || "";
@@ -195,7 +193,6 @@ window.openBulbLogModal = function(fixtureId, bulbId, positionName, fixtureName,
     document.getElementById('bulbLogModal').style.display = "block";
 };
 
-// Opening modal to EDIT an existing history log
 window.editBulbHistory = function(fixtureId, bulbId, historyIndex) {
     const fixture = window.lightsData.fixtures.find(f => f.id === fixtureId);
     if(!fixture) return;
@@ -206,7 +203,7 @@ window.editBulbHistory = function(fixtureId, bulbId, historyIndex) {
 
     document.getElementById('bulbLogForm').reset();
     document.getElementById('bulbLogModalTitle').innerText = "✏️ Edit History Log";
-    document.getElementById('deleteLogBtn').style.display = "block"; // Show delete button
+    document.getElementById('deleteLogBtn').style.display = "block"; 
 
     document.getElementById('bulbLogFixtureId').value = fixtureId;
     document.getElementById('bulbLogBulbId').value = bulbId;
@@ -214,7 +211,7 @@ window.editBulbHistory = function(fixtureId, bulbId, historyIndex) {
     
     document.getElementById('bulbLogName').innerText = `${fixture.name} - ${bulb.position}`;
     document.getElementById('bulbLogDate').value = entry.date_replaced || "";
-    document.getElementById('bulbLogPurchaseDate').value = entry.purchase_date || ""; // NEW
+    document.getElementById('bulbLogPurchaseDate').value = entry.purchase_date || ""; 
     
     document.getElementById('bulbLogBrand').value = entry.brand || "";
     document.getElementById('bulbLogBulbName').value = entry.bulb_name || entry.bulb_type || "";
@@ -229,7 +226,6 @@ window.editBulbHistory = function(fixtureId, bulbId, historyIndex) {
     document.getElementById('bulbLogModal').style.display = "block";
 };
 
-// Delete a specific history log
 window.deleteBulbHistory = async function() {
     const fixId = document.getElementById('bulbLogFixtureId').value;
     const bulbId = document.getElementById('bulbLogBulbId').value;
@@ -265,10 +261,39 @@ window.renderLights = function() {
         return;
     }
 
-    const sortedFixtures = [...window.lightsData.fixtures].sort((a, b) => {
+    // --- NEW: Search Filtering Logic ---
+    const query = document.getElementById('search-lights') ? document.getElementById('search-lights').value.toLowerCase() : '';
+    
+    const filteredFixtures = window.lightsData.fixtures.filter(fixture => {
+        if (!query) return true;
+        
+        // Match Fixture Name or Location
+        if ((fixture.name || '').toLowerCase().includes(query) || 
+            (fixture.location || '').toLowerCase().includes(query)) {
+            return true;
+        }
+        
+        // Match specific Bulb Attributes (Brand, Size, Type, Position)
+        return fixture.bulbs.some(bulb => {
+            if ((bulb.position || '').toLowerCase().includes(query)) return true;
+            if (bulb.history && bulb.history.length > 0) {
+                const latest = bulb.history[0];
+                const searchStr = `${latest.brand || ''} ${latest.bulb_name || latest.bulb_type || ''} ${latest.size || ''} ${latest.color || ''}`.toLowerCase();
+                if (searchStr.includes(query)) return true;
+            }
+            return false;
+        });
+    });
+
+    const sortedFixtures = [...filteredFixtures].sort((a, b) => {
         if(a.location === b.location) return a.name.localeCompare(b.name);
         return a.location.localeCompare(b.location);
     });
+
+    if (sortedFixtures.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-light);">No fixtures match your search.</p>';
+        return;
+    }
 
     sortedFixtures.forEach(fixture => {
         let bulbHtml = '';
@@ -322,7 +347,6 @@ window.renderLights = function() {
                 }).join('');
             }
 
-            // Clean strings securely
             const safeBrand = cBrand.replace(/'/g, "\\'");
             const safeName = cName.replace(/'/g, "\\'");
             const safeSize = cSize.replace(/'/g, "\\'");
