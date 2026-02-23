@@ -795,6 +795,12 @@
       "notes": "Lowes GE Lights",
       "path": "receipts/lights/receipt_1771873371673.pdf",
       "id": "receipt-1771873373103"
+    },
+    {
+      "date": "2025-12-12",
+      "notes": "Lowest GE Lights",
+      "path": "receipts/lights/receipt_1771873405063.pdf",
+      "id": "receipt-1771873406607"
     }
   ]
 }
