@@ -62,7 +62,6 @@ window.closeModal = function(modalId) {
     document.getElementById(modalId).style.display = "none"; 
 };
 
-// ... (Existing item Modals remain exactly the same) ...
 window.openAddModal = function() {
     document.getElementById('itemForm').reset();
     document.getElementById('itemId').value = ""; 
@@ -80,6 +79,7 @@ window.openAddModal = function() {
 window.openEditModal = function(id) {
     const item = window.appData.items.find(i => i.id === id);
     if (!item) return;
+    
     document.getElementById('itemForm').reset();
     document.getElementById('modalTitle').innerText = "Edit Task";
     document.getElementById('itemId').value = item.id;
@@ -87,6 +87,7 @@ window.openEditModal = function(id) {
     document.getElementById('itemFrequency').value = item.frequency_months;
     document.getElementById('lastCompletedContainer').style.display = "block";
     document.getElementById('deleteBtn').style.display = "block"; 
+    
     window.populateLocationDropdown(); 
     const locSelect = document.getElementById('itemLocation');
     if (item.location && !window.appLocations.includes(item.location)) {
@@ -96,6 +97,7 @@ window.openEditModal = function(id) {
         locSelect.appendChild(opt);
     }
     locSelect.value = item.location || "";
+
     window.populateCategoryDropdown();
     const catSelect = document.getElementById('itemCategory');
     if (item.category && !window.appCategories.includes(item.category)) {
@@ -105,6 +107,7 @@ window.openEditModal = function(id) {
         catSelect.appendChild(opt);
     }
     catSelect.value = item.category || "";
+    
     if (item.history && item.history.length > 0) {
         document.getElementById('itemLastCompleted').value = item.history[item.history.length - 1].date_completed;
     } else {
@@ -178,7 +181,7 @@ window.populateLocationDropdown = function() {
     const selects = [document.getElementById('itemLocation'), document.getElementById('fixtureLocation')];
     selects.forEach(selectEl => {
         if(!selectEl) return;
-        const currentVal = selectEl.value; // preserve selection if any
+        const currentVal = selectEl.value;
         selectEl.innerHTML = '<option value="">Select a location...</option>';
         window.appLocations.forEach(loc => {
             const opt = document.createElement('option');
@@ -249,7 +252,40 @@ window.deleteCategory = async function(index) {
 // ==========================================
 // 6. GITHUB API SYNCING
 // ==========================================
-window.saveLocationsToGitHub = async function() { /* ... same as your current file ... */ 
+// --- NEW HELPER: Convert File to Base64 ---
+window.getBase64 = function(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+};
+
+// --- NEW HELPER: Upload File to GitHub ---
+window.uploadFileToGitHub = async function(path, base64Content) {
+    const user = localStorage.getItem('ghUser'); 
+    const repo = localStorage.getItem('ghRepo'); 
+    const token = localStorage.getItem('ghToken');
+    if (!user || !repo || !token) throw new Error("No GitHub credentials");
+
+    const url = `https://api.github.com/repos/${user}/${repo}/contents/${path}`;
+    const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: `Uploaded receipt: ${path}`,
+            content: base64Content
+        })
+    });
+    if (!response.ok) throw new Error("File Upload Failed");
+    return await response.json();
+};
+
+window.saveLocationsToGitHub = async function() { 
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
     if (!user || !repo || !token) return;
     window.showStatusMsg("⏳ Saving Locations...", "blue");
@@ -264,7 +300,7 @@ window.saveLocationsToGitHub = async function() { /* ... same as your current fi
     } catch (error) { window.showStatusMsg("❌ Error saving locations.", "red"); }
 };
 
-window.saveCategoriesToGitHub = async function() { /* ... same as your current file ... */ 
+window.saveCategoriesToGitHub = async function() { 
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
     if (!user || !repo || !token) return;
     window.showStatusMsg("⏳ Saving Categories...", "blue");
@@ -279,7 +315,7 @@ window.saveCategoriesToGitHub = async function() { /* ... same as your current f
     } catch (error) { window.showStatusMsg("❌ Error saving categories.", "red"); }
 };
 
-window.saveToGitHub = async function() { /* ... same as your current file ... */ 
+window.saveToGitHub = async function() { 
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
     if (!user || !repo || !token) { window.showStatusMsg("⚠️ Saved locally. Connect GitHub to save permanently.", "orange"); return; }
     window.showStatusMsg("⏳ Saving Tasks...", "blue");
@@ -294,7 +330,6 @@ window.saveToGitHub = async function() { /* ... same as your current file ... */
     } catch (error) { window.showStatusMsg("❌ Error saving tasks.", "red"); }
 };
 
-// NEW: Save Lights to GitHub
 window.saveLightsToGitHub = async function() {
     const user = localStorage.getItem('ghUser'); const repo = localStorage.getItem('ghRepo'); const token = localStorage.getItem('ghToken');
     if (!user || !repo || !token) { window.showStatusMsg("⚠️ Lights saved locally. Connect GitHub to save permanently.", "orange"); return; }
@@ -304,7 +339,7 @@ window.saveLightsToGitHub = async function() {
         const url = `https://api.github.com/repos/${user}/${repo}/contents/lights.json`;
         
         const payload = { message: "Updated Lights Data", content: btoa(unescape(encodeURIComponent(jsonString))) };
-        if (window.lightsFileSha) payload.sha = window.lightsFileSha; // Include sha if it exists (update), omit if creating new
+        if (window.lightsFileSha) payload.sha = window.lightsFileSha; 
 
         const response = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         if (!response.ok) throw new Error("API Save Failed");
@@ -333,12 +368,12 @@ window.loadInitialData = async function() {
             if (catResponse.ok) {
                 const catResult = await catResponse.json(); window.categoryFileSha = catResult.sha; window.appCategories = JSON.parse(decodeURIComponent(escape(atob(catResult.content))));
             }
-            // Load Lights (NEW)
+            // Load Lights
             const lightsResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/lights.json`, { headers: { 'Authorization': `token ${token}` } });
             if (lightsResponse.ok) {
                 const lightsResult = await lightsResponse.json(); window.lightsFileSha = lightsResult.sha; window.lightsData = JSON.parse(decodeURIComponent(escape(atob(lightsResult.content))));
             } else if (lightsResponse.status === 404) {
-                window.lightsData = { fixtures: [] }; // File doesn't exist yet, start fresh
+                window.lightsData = { fixtures: [] }; 
             }
 
         } else {
@@ -346,7 +381,6 @@ window.loadInitialData = async function() {
             const locResponse = await fetch('./dropdowns/locations.json'); window.appLocations = await locResponse.json();
             const catResponse = await fetch('./dropdowns/categories.json'); window.appCategories = await catResponse.json();
             
-            // Try fetching local lights.json, handle missing file gracefully
             try { const lightsResp = await fetch('./lights.json'); if(lightsResp.ok) window.lightsData = await lightsResp.json(); } catch(e) { window.lightsData = { fixtures: [] }; }
         }
         
@@ -365,7 +399,7 @@ window.renderAllViews = function() {
     if(window.renderDashboard) window.renderDashboard();
     if(window.renderTimeline) window.renderTimeline();
     if(window.renderCategory) window.renderCategory();
-    if(window.renderLights) window.renderLights(); // NEW
+    if(window.renderLights) window.renderLights(); 
     if(window.renderAllTasks) window.renderAllTasks();
     if(window.renderSettings) window.renderSettings();
 };
@@ -373,7 +407,7 @@ window.renderAllViews = function() {
 // ==========================================
 // 8. FORM SUBMISSIONS (Tasks - Existing)
 // ==========================================
-document.getElementById('itemForm').addEventListener('submit', async function(e) { /* ... existing save code ... */ 
+document.getElementById('itemForm').addEventListener('submit', async function(e) { 
     e.preventDefault();
     const idToEdit = document.getElementById('itemId').value;
     const name = document.getElementById('itemName').value;
@@ -403,7 +437,7 @@ document.getElementById('itemForm').addEventListener('submit', async function(e)
     window.closeModal('itemModal'); window.renderAllViews(); await window.saveToGitHub(); 
 });
 
-document.getElementById('logForm').addEventListener('submit', async function(e) { /* ... existing log code ... */ 
+document.getElementById('logForm').addEventListener('submit', async function(e) { 
     e.preventDefault();
     const id = document.getElementById('logItemId').value;
     const dateCompleted = document.getElementById('logDate').value;
@@ -424,7 +458,7 @@ window.addEventListener('load', function() {
     if (window.initDashboard) window.initDashboard();
     if (window.initTimeline) window.initTimeline();
     if (window.initCategory) window.initCategory();
-    if (window.initLights) window.initLights(); // NEW
+    if (window.initLights) window.initLights(); 
     if (window.initAllTasks) window.initAllTasks();
     if (window.initSettings) window.initSettings();
 
