@@ -111,7 +111,7 @@ window.initLights = function() {
         await window.saveLightsToGitHub();
     });
 
-    // NEW: Handle Central Receipt Upload
+    // Handle Central Receipt Upload
     document.getElementById('receiptForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const rDate = document.getElementById('receiptDate').value;
@@ -125,7 +125,9 @@ window.initLights = function() {
         try {
             const file = fileInput.files[0];
             const ext = file.name.split('.').pop();
-            const filename = `receipt_${Date.now()}.${ext}`;
+            
+            // --- UPDATED: Includes the Date in the filename ---
+            const filename = `receipt_${rDate}_${Date.now()}.${ext}`;
             const path = `receipts/lights/${filename}`; 
             
             const base64Data = await window.getBase64(file);
@@ -298,7 +300,7 @@ window.toggleBulbHistory = function(bulbId) {
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 };
 
-// NEW: Central Receipt UI Controllers
+// Central Receipt UI Controllers
 window.openReceiptsModal = function() {
     document.getElementById('receiptForm').reset();
     document.getElementById('receiptDate').value = new Date().toISOString().split('T')[0];
