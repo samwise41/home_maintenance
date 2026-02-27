@@ -141,8 +141,14 @@
       "location": "Upstairs",
       "category": "Flooring",
       "frequency_months": 6,
-      "next_due": "2026-02-16",
-      "history": []
+      "next_due": "2026-08-25",
+      "history": [
+        {
+          "date_completed": "2026-02-26",
+          "notes": "",
+          "cost": 0
+        }
+      ]
     },
     {
       "id": "item-1771111209137",
