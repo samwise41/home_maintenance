@@ -6,11 +6,16 @@
       "location": "E Bedroom",
       "category": "Flooring",
       "frequency_months": 6,
-      "next_due": "2025-02-07",
+      "next_due": "2026-08-26",
       "history": [
         {
           "date_completed": "2024-08-07",
           "notes": "Initial entry"
+        },
+        {
+          "date_completed": "2026-02-27",
+          "notes": "",
+          "cost": 0
         }
       ]
     },
