@@ -25,11 +25,16 @@
       "location": "J Bedroom",
       "category": "Flooring",
       "frequency_months": 6,
-      "next_due": "2025-03-03",
+      "next_due": "2026-08-26",
       "history": [
         {
           "date_completed": "2024-09-03",
           "notes": "Initial entry"
+        },
+        {
+          "date_completed": "2026-02-27",
+          "notes": "",
+          "cost": 0
         }
       ]
     },
