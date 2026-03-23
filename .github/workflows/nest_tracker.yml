@@ -1,0 +1,44 @@
+name: Hourly Nest Temperature Tracker
+
+on:
+  schedule:
+    # Runs at minute 0 past every hour (e.g., 1:00, 2:00, 3:00)
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allows you to trigger it manually for testing
+
+jobs:
+  track-temperatures:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Run Temperature Grabber
+        env:
+          # We will store your extracted browser credentials safely in GitHub Secrets
+          NEST_COOKIE: ${{ secrets.NEST_COOKIE }}
+          NEST_API_KEY: ${{ secrets.NEST_API_KEY }}
+        run: python grab_temperatures.py
+
+      - name: Commit and Push Data
+        run: |
+          # Configure Git to act as a bot
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Bot"
+          
+          # Add the newly updated data file
+          git add temperature_history.json
+          
+          # Only commit if the file actually changed (prevents errors if the API fails)
+          git diff-index --quiet HEAD || git commit -m "chore: log hourly temperatures"
+          
+          # Push the commit back to the repository
+          git push
