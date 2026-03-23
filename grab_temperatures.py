@@ -31,7 +31,7 @@ def fetch_nest_data():
 
     # --- THIS IS THE PART WE WILL FILL IN AFTER EXTRACTING YOUR BROWSER DATA ---
     # The URL usually looks something like: https://home.nest.com/api/0.1/user/...
-    url = "YOUR_EXTRACTED_NEST_API_ENDPOINT"
+    url = "https://home.nest.com/session?_=1774300435821"
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
