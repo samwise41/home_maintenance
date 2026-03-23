@@ -35,6 +35,14 @@
         "Office (Sensor 2)": 73.0,
         "Basement (Sensor 3)": 68.5
       }
+    },
+    {
+      "timestamp": "2026-03-23 22:09:39",
+      "readings": {
+        "Office": 73.6,
+        "Loft": 70.5,
+        "Master Bedroom": 69.6
+      }
     }
   ]
 }
