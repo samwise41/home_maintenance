@@ -33,6 +33,7 @@
         <button class="nav-tab" onclick="window.switchTab('tab-lights', this)">💡 Lighting</button>
         <button class="nav-tab" onclick="window.switchTab('tab-all', this)">All Tasks</button>
         <button class="nav-tab" onclick="window.switchTab('tab-settings', this)">⚙️ Utilities</button>
+        <button class="nav-tab" onclick="window.switchTab('tab-nest', this)">🌡️ Temperatures</button>
     </aside>
 
     <main class="content-area">
@@ -44,6 +45,7 @@
         <div id="tab-lights" class="tab-content"></div>
         <div id="tab-all" class="tab-content"></div>
         <div id="tab-settings" class="tab-content"></div>
+        <div id="tab-nest" class="tab-content"></div>
     </main>
 </div>
 
@@ -220,6 +222,7 @@
     document.write('<script src="js/tab-tasks.js' + cacheBuster + '"><\/script>');
     document.write('<script src="js/tab-lights.js' + cacheBuster + '"><\/script>');
     document.write('<script src="js/tab-settings.js' + cacheBuster + '"><\/script>');
+    document.write('<script src="js/tab-nest.js' + cacheBuster + '"><\/script>');
 </script>
 
 <script>
