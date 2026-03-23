@@ -123,8 +123,14 @@
       "location": "Kitchen",
       "category": "Other",
       "frequency_months": 6,
-      "next_due": "2026-02-15",
-      "history": []
+      "next_due": "2026-09-21",
+      "history": [
+        {
+          "date_completed": "2026-03-21",
+          "notes": "Added via edit",
+          "cost": 0
+        }
+      ]
     },
     {
       "id": "item-1771187108356",
