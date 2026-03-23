@@ -8,6 +8,15 @@
         "Office (Sensor 2)": 73.0,
         "Basement (Sensor 3)": 68.5
       }
+    },
+    {
+      "timestamp": "2026-03-23 21:32:02",
+      "readings": {
+        "Main Thermostat": 72.5,
+        "Master Bedroom (Sensor 1)": 70.1,
+        "Office (Sensor 2)": 73.0,
+        "Basement (Sensor 3)": 68.5
+      }
     }
   ]
 }
