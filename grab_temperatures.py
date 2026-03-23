@@ -6,7 +6,7 @@ from datetime import datetime
 # 1. Define where the data lives
 DATA_FILE = 'temperature_history.json'
 
-# The exact URL we just proved works for your account
+# Your exact working Nest API endpoint
 URL = "https://home.nest.com/api/0.1/user/13452177/app_launch"
 
 def load_history():
@@ -20,34 +20,49 @@ def save_history(data):
         json.dump(data, f, indent=2)
 
 def dig_for_temperatures(data):
-    """Recursively hunt through the entire JSON for anything resembling a thermometer."""
+    """Recursively hunt through the entire JSON for indoor sensors."""
     found_devices = []
     
     if isinstance(data, dict):
-        # We found something with a temperature!
         if 'current_temperature' in data:
-            # Nest uses 'description' for sensor pucks, but might use 'name' for the main thermostat
+            # Nest uses 'description' for sensor pucks, but might use 'name' as a fallback
             sensor_name = data.get('description') or data.get('name') or 'Unknown Sensor'
-            
             found_devices.append({
                 'name': sensor_name,
                 'temp_c': data.get('current_temperature')
             })
-            
-        # Keep digging deeper into dictionaries
         for key, value in data.items():
             found_devices.extend(dig_for_temperatures(value))
             
     elif isinstance(data, list):
-        # Dig through lists
         for item in data:
             found_devices.extend(dig_for_temperatures(item))
             
     return found_devices
 
+def dig_for_weather(data):
+    """Recursively hunt for the outdoor weather block."""
+    if isinstance(data, dict):
+        # The weather block has a 'current' dict with 'temp_c' and 'icon'
+        if 'current' in data and 'temp_c' in data['current'] and 'icon' in data['current']:
+            return data['current']['temp_c']
+            
+        for key, value in data.items():
+            result = dig_for_weather(value)
+            if result is not None:
+                return result
+                
+    elif isinstance(data, list):
+        for item in data:
+            result = dig_for_weather(item)
+            if result is not None:
+                return result
+                
+    return None
+
 def fetch_nest_data():
     """
-    Fetches the current temperature using the POST endpoint.
+    Fetches the current temperatures using the POST endpoint.
     Pulls credentials securely from GitHub Secrets.
     """
     cookie = os.environ.get('NEST_COOKIE')
@@ -67,6 +82,7 @@ def fetch_nest_data():
         "x-requested-with": "XMLHttpRequest"
     }
 
+    # The exact bucket payload your account requires
     payload = {
         "known_bucket_types": [
             "buckets","delayed_topaz","demand_response","device","device_alert_dialog",
@@ -87,25 +103,40 @@ def fetch_nest_data():
             return None
 
         data = response.json()
+        
+        # 1. Grab indoor devices
         devices = dig_for_temperatures(data)
         
-        if not devices:
-            print("Connected, but couldn't find temperature data.")
+        # 2. Grab outdoor weather
+        weather_temp_c_str = dig_for_weather(data)
+        
+        if not devices and weather_temp_c_str is None:
+            print("Connected, but couldn't find any temperature data.")
             return None
 
-        # Format the output into a clean dictionary: {"Loft": 70.5, "Basement": 68.0}
         readings = {}
+        
+        # Format Indoor Sensors
         for dev in devices:
             name = dev['name']
-            
-            # Skip if we already recorded this sensor (Nest sometimes duplicates data in buckets)
+            # Skip if we already recorded this sensor to avoid duplicates
             if name in readings:
                 continue
             
             temp_c = dev['temp_c']
             if isinstance(temp_c, (int, float)):
                 temp_f = (temp_c * 1.8) + 32
-                readings[name] = round(temp_f, 1) # Round to 1 decimal place
+                readings[name] = round(temp_f, 1)
+
+        # Format Outdoor Weather
+        if weather_temp_c_str is not None:
+            try:
+                # Nest returns weather temp as a string (e.g., "18.3")
+                w_temp_c = float(weather_temp_c_str)
+                w_temp_f = (w_temp_c * 1.8) + 32
+                readings["Outdoor Weather"] = round(w_temp_f, 1)
+            except (ValueError, TypeError):
+                print(f"Failed to parse weather temperature: {weather_temp_c_str}")
 
         return readings
         
@@ -114,21 +145,16 @@ def fetch_nest_data():
         return None
 
 def main():
-    # Load existing temperatures
     history_data = load_history()
-    
-    # Grab the latest temperatures
     current_temps = fetch_nest_data()
     
     if current_temps:
-        # Create a timestamped entry
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         entry = {
             "timestamp": timestamp,
             "readings": current_temps
         }
         
-        # Append to history and save
         history_data["history"].append(entry)
         save_history(history_data)
         print(f"✅ Successfully logged temperatures for {timestamp}: {current_temps}")
