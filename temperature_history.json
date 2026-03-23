@@ -1,0 +1,13 @@
+{
+  "history": [
+    {
+      "timestamp": "2026-03-23 21:22:06",
+      "readings": {
+        "Main Thermostat": 72.5,
+        "Master Bedroom (Sensor 1)": 70.1,
+        "Office (Sensor 2)": 73.0,
+        "Basement (Sensor 3)": 68.5
+      }
+    }
+  ]
+}
