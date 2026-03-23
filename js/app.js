@@ -4,9 +4,11 @@
 window.appData = { items: [] };
 window.fileSha = ""; 
 
-// NEW: Added receipts array to the default state
 window.lightsData = { fixtures: [], receipts: [] };
 window.lightsFileSha = "";
+
+// NEW: Nest Temperature State
+window.nestData = { history: [] };
 
 window.appLocations = [];
 window.locationFileSha = "";
@@ -36,7 +38,8 @@ window.switchTab = function(tabId, element) {
         if (btn) btn.classList.add('active');
     }
     
-    const hashMap = { 'tab-dashboard': 'dashboard', 'tab-timeline': 'timeline', 'tab-category': 'category', 'tab-lights': 'lights', 'tab-all': 'all', 'tab-settings': 'settings' };
+    // UPDATED: Added tab-nest mapping
+    const hashMap = { 'tab-dashboard': 'dashboard', 'tab-timeline': 'timeline', 'tab-category': 'category', 'tab-lights': 'lights', 'tab-all': 'all', 'tab-settings': 'settings', 'tab-nest': 'nest' };
     const newHash = `#${hashMap[tabId]}`;
     if (window.location.hash !== newHash) {
         history.pushState(null, null, newHash);
@@ -50,7 +53,8 @@ window.switchTab = function(tabId, element) {
 
 window.addEventListener('popstate', () => {
     const hash = window.location.hash.replace('#', '') || 'dashboard';
-    const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'lights': 'tab-lights', 'all': 'tab-all', 'settings': 'tab-settings' };
+    // UPDATED: Added nest mapping
+    const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'lights': 'tab-lights', 'all': 'tab-all', 'settings': 'tab-settings', 'nest': 'tab-nest' };
     if (reverseMap[hash]) {
         window.switchTab(reverseMap[hash]);
     }
@@ -370,15 +374,25 @@ window.loadInitialData = async function() {
                 const lightsResult = await lightsResponse.json(); 
                 window.lightsFileSha = lightsResult.sha; 
                 window.lightsData = JSON.parse(decodeURIComponent(escape(atob(lightsResult.content))));
-                if(!window.lightsData.receipts) window.lightsData.receipts = []; // Ensure array exists
+                if(!window.lightsData.receipts) window.lightsData.receipts = []; 
             } else if (lightsResponse.status === 404) {
                 window.lightsData = { fixtures: [], receipts: [] }; 
             }
+
+            // NEW: Fetch Nest Temperature Data
+            try {
+                const nestResponse = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/temperature_history.json`, { headers: { 'Authorization': `token ${token}` } });
+                if (nestResponse.ok) {
+                    const nestResult = await nestResponse.json();
+                    window.nestData = JSON.parse(decodeURIComponent(escape(atob(nestResult.content))));
+                }
+            } catch(e) { console.log("No Nest data found yet."); }
 
         } else {
             const dataResponse = await fetch('./data.json'); window.appData = await dataResponse.json();
             const locResponse = await fetch('./dropdowns/locations.json'); window.appLocations = await locResponse.json();
             const catResponse = await fetch('./dropdowns/categories.json'); window.appCategories = await catResponse.json();
+            
             try { 
                 const lightsResp = await fetch('./lights.json'); 
                 if(lightsResp.ok) {
@@ -386,6 +400,14 @@ window.loadInitialData = async function() {
                     if(!window.lightsData.receipts) window.lightsData.receipts = [];
                 }
             } catch(e) { window.lightsData = { fixtures: [], receipts: [] }; }
+
+            // NEW: Fallback for local Nest Temperature Data
+            try { 
+                const nestResp = await fetch('./temperature_history.json'); 
+                if(nestResp.ok) {
+                    window.nestData = await nestResp.json(); 
+                }
+            } catch(e) { console.log("Local Nest data not found."); }
         }
         
         window.populateLocationDropdown();
@@ -406,6 +428,7 @@ window.renderAllViews = function() {
     if(window.renderLights) window.renderLights(); 
     if(window.renderAllTasks) window.renderAllTasks();
     if(window.renderSettings) window.renderSettings();
+    if(window.renderNest) window.renderNest(); // NEW: Render Nest View
 };
 
 // ==========================================
@@ -465,12 +488,14 @@ window.addEventListener('load', function() {
     if (window.initLights) window.initLights(); 
     if (window.initAllTasks) window.initAllTasks();
     if (window.initSettings) window.initSettings();
+    if (window.initNest) window.initNest(); // NEW: Initialize Nest View
 
     window.loadInitialData();
 
     setTimeout(() => {
         const initialHash = window.location.hash.replace('#', '') || 'dashboard';
-        const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'lights': 'tab-lights', 'all': 'tab-all', 'settings': 'tab-settings' };
+        // UPDATED: Added nest mapping
+        const reverseMap = { 'dashboard': 'tab-dashboard', 'timeline': 'tab-timeline', 'category': 'tab-category', 'lights': 'tab-lights', 'all': 'tab-all', 'settings': 'tab-settings', 'nest': 'tab-nest' };
         if (reverseMap[initialHash]) {
             window.switchTab(reverseMap[initialHash]);
         }
