@@ -787,6 +787,28 @@
           "history": []
         }
       ]
+    },
+    {
+      "id": "fixture-1774496489614",
+      "name": "Main Floor Bathroom",
+      "location": "Bathroom",
+      "bulbs": [
+        {
+          "id": "bulb-1774496489613-0",
+          "position": "Left",
+          "history": []
+        },
+        {
+          "id": "bulb-1774496489614-1",
+          "position": "Middle",
+          "history": []
+        },
+        {
+          "id": "bulb-1774496489614-2",
+          "position": "Right",
+          "history": []
+        }
+      ]
     }
   ],
   "receipts": [
